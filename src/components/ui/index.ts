@@ -2,6 +2,7 @@
 export { Avatar, AvatarFallback, AvatarImage } from "./avatar"
 export { Badge, badgeVariants } from "./badge"
 export { Button, buttonVariants } from "./button"
+export { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "./button-group"
 export { AddButton } from "./buttons/add-button"
 export { DeleteButton } from "./buttons/delete-button"
 export { EditButton } from "./buttons/edit-button"
@@ -85,6 +86,7 @@ export {
 } from "./sidebar"
 export { Skeleton } from "./skeleton"
 export { Toaster } from "./sonner"
+export { ToggleGroup, ToggleGroupItem } from "./toggle-group"
 export {
   Tooltip,
   TooltipContent,

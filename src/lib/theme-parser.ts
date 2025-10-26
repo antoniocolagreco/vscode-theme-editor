@@ -1,4 +1,5 @@
 import type { ColorStyle, SemanticTokenColor, TokenColor, UIColor, VSCodeTheme } from "@/types"
+import { isValidColor } from "./color-validator"
 
 interface ParsedTheme {
   $schema?: string
@@ -20,7 +21,13 @@ interface ParsedTheme {
 function findOrCreateColorStyle(
   colorStyles: Map<string, ColorStyle>,
   colorValue: string
-): ColorStyle {
+): ColorStyle | null {
+  // Validate color before processing
+  if (!isValidColor(colorValue)) {
+    console.warn(`Invalid color value skipped: "${colorValue}"`)
+    return null
+  }
+
   const existing = Array.from(colorStyles.values()).find(cs => cs.value === colorValue)
   if (existing) {
     return existing
@@ -44,12 +51,44 @@ function parseUIColors(
     for (const [key, value] of Object.entries(parsed.colors)) {
       if (typeof value === "string") {
         const colorStyle = findOrCreateColorStyle(colorStyles, value)
-        colors.set(key, { colorStyle })
+        if (colorStyle) {
+          colors.set(key, { colorStyle })
+        }
       }
     }
   }
 
   return colors
+}
+
+function createTokenColorObject(
+  settings: { foreground?: string; background?: string; fontStyle?: string },
+  colorStyles: Map<string, ColorStyle>
+): TokenColor {
+  const tokenColorObj: TokenColor = {}
+
+  // Parse foreground color
+  if (settings.foreground) {
+    const foreground = findOrCreateColorStyle(colorStyles, settings.foreground)
+    if (foreground) {
+      tokenColorObj.foreground = foreground
+    }
+  }
+
+  // Parse background color
+  if (settings.background) {
+    const background = findOrCreateColorStyle(colorStyles, settings.background)
+    if (background) {
+      tokenColorObj.background = background
+    }
+  }
+
+  // Parse font style
+  if (settings.fontStyle) {
+    tokenColorObj.fontStyle = settings.fontStyle as never
+  }
+
+  return tokenColorObj
 }
 
 function parseTokenColors(
@@ -68,19 +107,7 @@ function parseTokenColors(
       : tokenColor.scope || "default"
 
     const settings = tokenColor.settings || {}
-    const tokenColorObj: TokenColor = {}
-
-    if (settings.foreground) {
-      tokenColorObj.foreground = findOrCreateColorStyle(colorStyles, settings.foreground)
-    }
-
-    if (settings.background) {
-      tokenColorObj.background = findOrCreateColorStyle(colorStyles, settings.background)
-    }
-
-    if (settings.fontStyle) {
-      tokenColorObj.fontStyle = settings.fontStyle as never
-    }
+    const tokenColorObj = createTokenColorObject(settings, colorStyles)
 
     tokenColors.set(scope, tokenColorObj)
   }
@@ -99,19 +126,26 @@ function parseSemanticTokenColors(
   const semanticTokenColors = new Map<string, SemanticTokenColor>()
 
   for (const [key, value] of Object.entries(parsed.semanticTokenColors)) {
-    if (typeof value === "object" && value !== null) {
-      const semanticToken: SemanticTokenColor = {}
-
-      if (typeof value.foreground === "string") {
-        semanticToken.foreground = findOrCreateColorStyle(colorStyles, value.foreground)
-      }
-
-      if (typeof value.fontStyle === "string") {
-        semanticToken.fontStyle = value.fontStyle as never
-      }
-
-      semanticTokenColors.set(key, semanticToken)
+    if (typeof value !== "object" || value === null) {
+      continue
     }
+
+    const semanticToken: SemanticTokenColor = {}
+
+    // Parse foreground color
+    if (typeof value.foreground === "string") {
+      const foreground = findOrCreateColorStyle(colorStyles, value.foreground)
+      if (foreground) {
+        semanticToken.foreground = foreground
+      }
+    }
+
+    // Parse font style
+    if (typeof value.fontStyle === "string") {
+      semanticToken.fontStyle = value.fontStyle as never
+    }
+
+    semanticTokenColors.set(key, semanticToken)
   }
 
   return semanticTokenColors
@@ -120,12 +154,12 @@ function parseSemanticTokenColors(
 export function parseThemeFromJSON(jsonContent: string): VSCodeTheme {
   const parsed: ParsedTheme = JSON.parse(jsonContent)
 
-  // Extract all unique colors first and sort them by value
+  // Extract all unique VALID colors first and sort them by value
   const allColors = new Set<string>()
 
   if (parsed.colors) {
     Object.values(parsed.colors).forEach(color => {
-      if (typeof color === "string") {
+      if (typeof color === "string" && isValidColor(color)) {
         allColors.add(color)
       }
     })
@@ -133,10 +167,10 @@ export function parseThemeFromJSON(jsonContent: string): VSCodeTheme {
 
   if (parsed.tokenColors) {
     parsed.tokenColors.forEach(token => {
-      if (token.settings?.foreground) {
+      if (token.settings?.foreground && isValidColor(token.settings.foreground)) {
         allColors.add(token.settings.foreground)
       }
-      if (token.settings?.background) {
+      if (token.settings?.background && isValidColor(token.settings.background)) {
         allColors.add(token.settings.background)
       }
     })
@@ -146,7 +180,7 @@ export function parseThemeFromJSON(jsonContent: string): VSCodeTheme {
     Object.values(parsed.semanticTokenColors).forEach(settings => {
       if (typeof settings === "object") {
         Object.values(settings).forEach(value => {
-          if (typeof value === "string") {
+          if (typeof value === "string" && isValidColor(value)) {
             allColors.add(value)
           }
         })

@@ -183,7 +183,7 @@ export function AppLayout() {
           <SidebarTrigger className='-ml-1' />
           <h1 className='text-lg font-semibold'>{currentPage?.title || "VSCode Theme Editor"}</h1>
         </header>
-        <div className='flex flex-1 flex-col gap-4 p-4'>
+        <div className='flex flex-1 flex-col gap-4 p-4 h-full'>
           <Outlet />
         </div>
       </SidebarInset>

@@ -183,4 +183,64 @@ describe("parseThemeFromJSON", () => {
     expect(theme.type).toBe("dark")
     expect(theme.colors.size).toBe(0)
   })
+
+  it("should skip invalid color values", () => {
+    const json = JSON.stringify({
+      name: "Test Theme",
+      colors: {
+        "editor.background": "#1e1e1e",
+        "editor.foreground": "italic", // Invalid - not a color
+        "statusBar.background": "bold", // Invalid - not a color
+      },
+      tokenColors: [
+        {
+          scope: "comment",
+          settings: {
+            foreground: "#6A9955",
+            background: "underline", // Invalid - not a color
+          },
+        },
+        {
+          scope: "keyword",
+          settings: {
+            foreground: "invalid-color", // Invalid
+          },
+        },
+      ],
+    })
+
+    const theme = parseThemeFromJSON(json)
+
+    // Should only have 2 valid colors: #1e1e1e and #6A9955
+    expect(theme.colorStyles?.size || 0).toBe(2)
+    expect(theme.colors.size).toBe(1) // Only editor.background is valid
+    expect(theme.tokenColors.size).toBe(2)
+
+    const comment = theme.tokenColors.get("comment")
+    expect(comment?.foreground?.value).toBe("#6A9955")
+    expect(comment?.background).toBeUndefined() // Invalid color skipped
+
+    const keyword = theme.tokenColors.get("keyword")
+    expect(keyword?.foreground).toBeUndefined() // Invalid color skipped
+  })
+
+  it("should accept valid color formats", () => {
+    const json = JSON.stringify({
+      name: "Test Theme",
+      colors: {
+        hex3: "#fff",
+        hex6: "#ffffff",
+        hex8: "#ffffffff",
+        rgb: "rgb(255, 255, 255)",
+        rgba: "rgba(255, 255, 255, 0.5)",
+        hsl: "hsl(0, 0%, 100%)",
+        hsla: "hsla(0, 0%, 100%, 0.5)",
+      },
+    })
+
+    const theme = parseThemeFromJSON(json)
+
+    expect(theme.colors.size).toBe(7)
+    expect(theme.colorStyles?.size || 0).toBe(7)
+  })
 })
