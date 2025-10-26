@@ -30,6 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui"
 import { useTheme } from "@/context"
+import { getScopesForColor } from "@/lib/color-scope-manager"
 import { getColorValidationMessage, isValidColor } from "@/lib/color-validator"
 import type { ColorStyle } from "@/types"
 
@@ -49,11 +50,18 @@ export function ColorsPage() {
   const colorStyles = Array.from(theme?.colorStyles?.entries() || []).reverse()
 
   const sortedAndFilteredColors = useMemo(() => {
-    const filtered = colorStyles.filter(
-      ([name, style]) =>
-        name.toLowerCase().includes(search.toLowerCase()) ||
-        style.value.toLowerCase().includes(search.toLowerCase())
-    )
+    const searchLower = search.toLowerCase()
+    const filtered = colorStyles.filter(([name, style]) => {
+      // Match by name or value
+      if (name.toLowerCase().includes(searchLower) ||
+        style.value.toLowerCase().includes(searchLower)) {
+        return true
+      }
+
+      // Match by scope names
+      const scopes = Array.from(style.scopes)
+      return scopes.some(scope => scope.toLowerCase().includes(searchLower))
+    })
 
     if (sortBy === "default") {
       return sortOrder === "asc" ? filtered : [...filtered].reverse()
@@ -117,35 +125,8 @@ export function ColorsPage() {
       </Card>
     )
   }  // Find all scopes using a specific color style
-  const getScopesUsingColor = (colorStyle: ColorStyle): string[] => {
-    const scopes: string[] = []
-
-    // Check UI colors
-    theme.colors.forEach((uiColor, scope) => {
-      if (uiColor.colorStyle.value === colorStyle.value) {
-        scopes.push(scope)
-      }
-    })
-
-    // Check token colors
-    theme.tokenColors.forEach((tokenColor, scope) => {
-      if (tokenColor.foreground?.value === colorStyle.value) {
-        scopes.push(`${scope} (fg)`)
-      }
-      if (tokenColor.background?.value === colorStyle.value) {
-        scopes.push(`${scope} (bg)`)
-      }
-    })
-
-    // Check semantic token colors
-    theme.semanticTokenColors?.forEach((semanticColor, scope) => {
-      if (semanticColor.foreground?.value === colorStyle.value) {
-        scopes.push(`${scope} (semantic)`)
-      }
-    })
-
-    return scopes
-  }
+  // Optimized to use pre-computed scopes field
+  const getScopesUsingColor = getScopesForColor
 
   const handleAdd = () => {
     setEditingColor(null)
@@ -287,7 +268,7 @@ export function ColorsPage() {
                                   <p className='text-xs text-muted-foreground'>Not used in any scope</p>
                                 ) : (
                                   <ul className='text-xs space-y-0.5'>
-                                    {scopes.slice(0, 50).map(scope => (
+                                    {scopes.slice(0, 50).map((scope: string) => (
                                       <li key={scope} className='truncate'>
                                         • {scope}
                                       </li>

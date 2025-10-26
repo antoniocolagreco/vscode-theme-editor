@@ -36,6 +36,7 @@ function findOrCreateColorStyle(
   const newStyle: ColorStyle = {
     name: `Color ${colorStyles.size + 1}`,
     value: colorValue,
+    scopes: new Set<string>(),
   }
   colorStyles.set(newStyle.name, newStyle)
   return newStyle
@@ -52,6 +53,7 @@ function parseUIColors(
       if (typeof value === "string") {
         const colorStyle = findOrCreateColorStyle(colorStyles, value)
         if (colorStyle) {
+          colorStyle.scopes.add(key)
           colors.set(key, { colorStyle })
         }
       }
@@ -62,6 +64,7 @@ function parseUIColors(
 }
 
 function createTokenColorObject(
+  scope: string,
   settings: { foreground?: string; background?: string; fontStyle?: string },
   colorStyles: Map<string, ColorStyle>
 ): TokenColor {
@@ -71,6 +74,7 @@ function createTokenColorObject(
   if (settings.foreground) {
     const foreground = findOrCreateColorStyle(colorStyles, settings.foreground)
     if (foreground) {
+      foreground.scopes.add(`${scope} (fg)`)
       tokenColorObj.foreground = foreground
     }
   }
@@ -79,6 +83,7 @@ function createTokenColorObject(
   if (settings.background) {
     const background = findOrCreateColorStyle(colorStyles, settings.background)
     if (background) {
+      background.scopes.add(`${scope} (bg)`)
       tokenColorObj.background = background
     }
   }
@@ -107,7 +112,7 @@ function parseTokenColors(
       : tokenColor.scope || "default"
 
     const settings = tokenColor.settings || {}
-    const tokenColorObj = createTokenColorObject(settings, colorStyles)
+    const tokenColorObj = createTokenColorObject(scope, settings, colorStyles)
 
     tokenColors.set(scope, tokenColorObj)
   }
@@ -136,6 +141,7 @@ function parseSemanticTokenColors(
     if (typeof value.foreground === "string") {
       const foreground = findOrCreateColorStyle(colorStyles, value.foreground)
       if (foreground) {
+        foreground.scopes.add(`${key} (semantic)`)
         semanticToken.foreground = foreground
       }
     }
@@ -195,6 +201,7 @@ export function parseThemeFromJSON(jsonContent: string): VSCodeTheme {
     const colorStyle: ColorStyle = {
       name: `Color ${index + 1}`,
       value: color,
+      scopes: new Set<string>(),
     }
     colorStyles.set(colorStyle.name, colorStyle)
   })
