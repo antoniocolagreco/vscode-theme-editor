@@ -107,14 +107,17 @@ function parseTokenColors(
   }
 
   for (const tokenColor of parsed.tokenColors) {
-    const scope = Array.isArray(tokenColor.scope)
-      ? tokenColor.scope.join(", ")
-      : tokenColor.scope || "default"
+    const scopes = Array.isArray(tokenColor.scope)
+      ? tokenColor.scope
+      : [tokenColor.scope || "default"]
 
     const settings = tokenColor.settings || {}
-    const tokenColorObj = createTokenColorObject(scope, settings, colorStyles)
 
-    tokenColors.set(scope, tokenColorObj)
+    // Create a separate entry for each scope in the array
+    for (const scope of scopes) {
+      const tokenColorObj = createTokenColorObject(scope, settings, colorStyles)
+      tokenColors.set(scope, tokenColorObj)
+    }
   }
 
   return tokenColors

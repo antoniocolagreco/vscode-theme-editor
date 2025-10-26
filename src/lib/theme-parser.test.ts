@@ -64,14 +64,18 @@ describe("parseThemeFromJSON", () => {
 
     const theme = parseThemeFromJSON(json)
 
-    expect(theme.tokenColors.size).toBe(2)
+    expect(theme.tokenColors.size).toBe(3) // comment + keyword + storage.type
 
     const comment = theme.tokenColors.get("comment")
     expect(comment?.foreground?.value).toBe("#6A9955")
     expect(comment?.fontStyle).toBe("italic")
 
-    const keyword = theme.tokenColors.get("keyword, storage.type")
+    // Array scopes should be split into separate entries
+    const keyword = theme.tokenColors.get("keyword")
     expect(keyword?.foreground?.value).toBe("#569CD6")
+
+    const storageType = theme.tokenColors.get("storage.type")
+    expect(storageType?.foreground?.value).toBe("#569CD6")
   })
 
   it("should parse semantic token colors", () => {
