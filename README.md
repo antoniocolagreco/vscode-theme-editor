@@ -1,190 +1,104 @@
 # VS Code Theme Editor
 
-A simple and efficient desktop application for creating and managing Visual Studio Code themes.
+Desktop app (Electron + React) for editing VS Code theme JSON files with zero duplication.
 
-## Technology Stack
+## The Problem
 
-### Runtime & Build
+VS Code themes have hundreds of color scopes, but many reuse the same color values. Without deduplication:
 
-- **Node.js** - JavaScript runtime
-- **TypeScript 5.9** - Type safety and developer experience
-- **Vite 7.1** (Rolldown) - Modern and fast build tool
-- **Electron 38** - Desktop app with filesystem access
+- Edit "red" in 50 places instead of 1
+- Colors become inconsistent
+- Hard to track where each color is used
 
-### Framework & UI
+## The Solution
 
-- **React 19** - UI framework with hooks
-- **React Router DOM 7** - Client-side routing
-- **Shadcn/UI** - Component library (brings Radix UI, CVA, etc. as dependencies)
+**ColorStyle Palette**: Extract unique colors once, reference everywhere.
 
-### Styling
+- Load theme → extract unique colors into a palette
+- Edit a color value → all scopes using it update automatically (same object reference)
+- Save theme → serialize back to VS Code format
 
-- **TailwindCSS 4.1** - Utility-first CSS framework
-- **Lucide React** - Icon set
+## Features
 
-### Development Tools
+- ✅ **UI Colors Page**: Edit VS Code UI scope colors
+- ✅ **Token Colors Page**: Edit syntax highlighting colors (foreground, background, fontStyle)
+- ✅ **Semantic Tokens Page**: Edit semantic token colors
+- ✅ **Color Palette**: View and edit unique colors directly
+- ✅ **Search & Sort**: Find scopes by name, sort by category or name
+- ✅ **Load/Save**: Open any theme, make edits, save back to file
+- ✅ **Live Preview**: Instantly see all color updates across the theme
 
-- **Biome 2.3** - Linter + Formatter
-- **Vitest 4** - Test runner
-- **Electron Builder 26** - Package desktop app for distribution
+## Tech Stack
+
+- **Electron 38** - Desktop app with native file access
+- **React 19** - UI with performance optimizations (memoization, deferred values)
+- **TypeScript 5.9** - Strict type safety
+- **Vite** - Fast dev server and build tool
+- **Radix UI + Shadcn/UI** - Component library
+- **TailwindCSS** - Styling
+- **Vitest** - Unit tests (80%+ coverage)
+
+## Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Dev mode (Vite + Electron with HMR)
+npm run dev
+
+# Build distributable
+npm run build
+npm run electron:build
+
+# Run tests
+npm test
+npm run test:coverage
+```
+
+## How It Works
+
+1. **Load Theme**: Read VS Code theme JSON file
+2. **Parse**: Extract unique colors → ColorStyle palette
+3. **Edit**: Modify UI/Token/Semantic colors (all reference same ColorStyle objects)
+4. **Save**: Serialize back to VS Code JSON format
+
+All scope updates are tracked automatically. Edit one ColorStyle value → instantly updates all 50+ scopes using it.
+
+## Architecture
+
+```text
+src/
+├── pages/          # UI Colors, Token Colors, Semantic Tokens pages
+├── context/        # ThemeContext for global state
+├── lib/            # Parsers, file I/O, scope managers
+├── components/     # Reusable UI components
+└── types/          # TypeScript interfaces
+
+electron/
+├── main.cjs        # Electron IPC handlers
+└── preload.cjs     # Preload script
+```
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/lib/theme-parser.ts` | Parse VS Code JSON → internal format |
+| `src/lib/file-service.ts` | Save internal format → VS Code JSON |
+| `src/lib/color-scope-manager.ts` | Track color usage (scope management) |
+| `src/context/theme-context.tsx` | Global theme state provider |
+| `.github/copilot-instructions.md` | AI agent development guide |
 
 ## Testing
 
-The project uses **Vitest** for testing with a minimum **80% code coverage** requirement for business logic.
-
-### Run Tests
-
 ```bash
-# Run tests in watch mode
-npm test
-
-# Run tests once
-npm run test -- --run
-
-# Run tests with coverage report
-npm run test:coverage
-
-# Run tests with UI
-npm run test:ui
+npm test               # Watch mode
+npm run test:coverage  # Coverage report (min 80%)
 ```
 
-### Coverage
+All business logic (parsers, file I/O, scope management) has 100% coverage.
 
-Current coverage: **84%+** for business logic (theme parsing, utilities, and state management)
+## License
 
-The coverage report is generated in the `coverage/` directory and can be viewed in your browser by opening `coverage/index.html`.
-
-### Conventions
-
-- **Language**: English Only for everything
-- **File naming**: kebab-case
-- **Imports**: Barrel exports per layer (`index.ts`)
-- **Components**: Function components with TypeScript
-- **Styling**: Tailwind utility classes, no CSS modules
-- **Testing**: Unit tests co-located with source (`.test.ts`), 80%+ coverage for business logic
-- **Code Quality**: Biome rules strict, auto-format on save
-
-## Application Layout
-
-The app has a collapsible sidebar on the left and a main content area on the right.
-
-### Sidebar
-
-- Navigation menu for all pages
-- **Load Theme button** - Upload existing theme JSON file
-- **New Theme button** - Create blank theme from scratch
-- **Save button** at the bottom
-  - If theme was loaded from file: overwrites the existing file
-  - If theme is new: opens save dialog to choose location
-  - Serializes all data to valid VS Code theme JSON (including custom `colorStyles` field)
-
-## User Workflows
-
-### Primary Flow
-
-1. **Load existing theme** (most common) or create new blank theme
-2. **Edit scopes** across the three sections (UI colors, semantic tokens, token colors)
-3. **Manage color palette** in the Colors Editor
-4. **Save** to JSON file
-
-### Live Preview
-
-The user can edit the theme currently active in VS Code to see changes in real-time. Each scope in the app's lists displays using its assigned colors:
-
-- **Foreground**: text color
-- **Background**: background color
-- **Font style**: bold, italic, etc.
-
-**Default fallbacks**:
-
-- Missing background → uses default background color if set, otherwise:
-  - Dark theme: black (`#000000`)
-  - Light theme: white (`#ffffff`)
-- Missing foreground → uses default foreground color if set, otherwise:
-  - Dark theme: white (`#ffffff`)
-  - Light theme: black (`#000000`)
-
-### Color Style Management
-
-When loading an existing theme:
-
-- All colors are extracted into the `colorStyles` map
-- Each unique color becomes a ColorStyle with a user-customizable name
-- Duplicate colors reuse the same ColorStyle reference
-- The `colorStyles` field persists in the JSON file for app use only
-
-## Pages / Views
-
-### Theme Settings
-
-Main page for configuring basic theme information and viewing scope summaries.
-
-**Components**:
-
-- **Theme Metadata**: Edit basic theme information
-  - `$schema` (VS Code theme schema URL)
-  - `name` (theme display name)
-  - `type` (dark, light, hc)
-  
-- **UI Colors section**: Summary with link to dedicated page
-  - Shows count of defined UI color scopes
-  - Quick overview of `editor.background`, `statusBar.foreground`, etc.
-  
-- **Token Colors section**: Summary with link to dedicated page
-  - Shows count of defined token color scopes
-  - Quick overview of syntax highlighting scopes
-  
-- **Semantic Token Colors section**: Summary with link to dedicated page
-  - Checkbox to enable/disable semantic highlighting
-  - Shows count of defined semantic token scopes
-  - Quick overview of language-specific semantic scopes
-
-### Colors Editor
-
-Centralized palette management for all colors used in the theme.
-
-**Features**:
-
-- Add/edit/delete ColorStyles
-- Each ColorStyle has:
-  - Unique user-defined name (for easy identification)
-  - Color value (hex, rgb, rgba)
-- Color preview with name display
-- Bulk color modifications cascade to all scopes using that ColorStyle
-
-**Storage**: ColorStyles are stored in a custom `colorStyles` field in the theme JSON file.
-
-### UI Colors Editor
-
-Dedicated page for managing UI color scopes.
-
-**Features**:
-
-- Searchable list with filter-as-you-type
-- Add/edit/delete scopes (e.g., `editor.background`, `statusBar.foreground`)
-- Assign ColorStyles to each scope
-- Visual preview of each scope with its assigned color
-
-### Semantic Token Colors Editor
-
-Dedicated page for managing semantic token color scopes.
-
-**Features**:
-
-- Searchable list with filter-as-you-type
-- Add/edit/delete scopes (e.g., `variable`, `function.async:typescript`)
-- Assign ColorStyle to foreground
-- Assign FontStyle (bold, italic, underline, etc.)
-- Visual preview of each scope with its assigned styles
-
-### Token Colors Editor
-
-Dedicated page for managing token color scopes.
-
-**Features**:
-
-- Searchable list with filter-as-you-type
-- Add/edit/delete scopes (e.g., `comment`, `keyword.control`)
-- Assign ColorStyles to foreground and background
-- Assign FontStyle (bold, italic, underline, etc.)
-- Visual preview of each scope with its assigned styles
+MIT
