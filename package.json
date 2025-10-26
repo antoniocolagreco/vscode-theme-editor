@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "test": "vitest --run",
     "test:ui": "vitest --ui --run",
-    "test:coverage": "vitest --coverage",
+    "test:coverage": "vitest --coverage --run",
     "lint": "biome lint src/",
     "format": "biome format src/ --write",
     "type-check": "tsc --noEmit",
