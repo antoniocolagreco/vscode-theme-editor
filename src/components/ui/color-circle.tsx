@@ -37,7 +37,6 @@ export function ColorCircle({
         )}
         style={{ backgroundColor: displayColor }}
         onClick={onClick}
-        title={title || color}
         aria-label={ariaLabel || title || color}
       />
     )
@@ -50,8 +49,6 @@ export function ColorCircle({
         sizes[size],
         className
       )}
-      style={{ backgroundColor: displayColor }}
-      title={title || color}
-    />
+      style={{ backgroundColor: displayColor }} />
   )
 }
