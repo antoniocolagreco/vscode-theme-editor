@@ -37,6 +37,12 @@ interface ElectronAPI {
    * @returns Array di nomi file
    */
   listFiles(): Promise<string[]>
+
+  /**
+   * Apre il dialog di selezione file nativo
+   * @returns Oggetto con filePath e content, o null se cancellato
+   */
+  openFileDialog(): Promise<{ filePath: string; content: string } | null>
 }
 
 declare global {

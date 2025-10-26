@@ -1,8 +1,7 @@
-import { FileInput, Palette, Save, Sparkles, SwatchBook, Target } from "lucide-react"
+import { FileUp, Palette, Plus, Save, Settings, Sparkles, SwatchBook, Target } from "lucide-react"
 import { Link, Outlet, useLocation } from "react-router-dom"
 import { toast } from "sonner"
 import {
-  Button,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -17,16 +16,17 @@ import {
   SidebarTrigger,
 } from "@/components/ui"
 import { useTheme } from "@/context"
-import { saveThemeToFile } from "@/lib/file-service"
+import { parseThemeFromJSON, saveThemeToFile } from "@/lib"
+import type { VSCodeTheme } from "@/types"
 
 const navigationItems = [
   {
-    title: "Theme Editor",
+    title: "Theme Settings",
     path: "/",
-    icon: FileInput,
+    icon: Settings,
   },
   {
-    title: "Colors",
+    title: "Colors Palette",
     path: "/colors",
     icon: Palette,
   },
@@ -41,7 +41,7 @@ const navigationItems = [
     icon: Target,
   },
   {
-    title: "Semantic Tokens",
+    title: "Semantic Colors",
     path: "/semantic-tokens",
     icon: Sparkles,
   },
@@ -49,8 +49,47 @@ const navigationItems = [
 
 export function AppLayout() {
   const location = useLocation()
-  const { theme, currentFilePath } = useTheme()
-  const currentPage = navigationItems.find((item) => item.path === location.pathname)
+  const { theme, setTheme, currentFilePath, setCurrentFilePath } = useTheme()
+  const currentPage = navigationItems.find(item => item.path === location.pathname)
+
+  const handleNewTheme = () => {
+    const newTheme: VSCodeTheme = {
+      $schema: "vscode://schemas/color-theme",
+      name: "New Theme",
+      type: "dark",
+      colorStyles: new Map(),
+      colors: new Map(),
+      tokenColors: new Map(),
+      semanticHighlighting: false,
+      semanticTokenColors: undefined,
+    }
+
+    setTheme(newTheme)
+    setCurrentFilePath(null)
+    toast.success("New theme created")
+  }
+
+  const handleLoadTheme = async () => {
+    if (!window.electronAPI) {
+      toast.error("Electron API not available")
+      return
+    }
+
+    try {
+      const result = await window.electronAPI.openFileDialog()
+
+      if (!result) {
+        return // User cancelled
+      }
+
+      const loadedTheme = parseThemeFromJSON(result.content)
+      setTheme(loadedTheme)
+      setCurrentFilePath(result.filePath)
+      toast.success(`Theme "${loadedTheme.name}" loaded successfully`)
+    } catch (error) {
+      toast.error(`Failed to load theme: ${error}`)
+    }
+  }
 
   const handleSave = async () => {
     if (!theme) {
@@ -113,19 +152,26 @@ export function AppLayout() {
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <Button
-                onClick={handleSave}
-                disabled={!theme}
-                className="w-full"
-                size="sm"
-              >
-                <Save className="size-4 mr-2" />
-                Save Theme
-              </Button>
+              <SidebarMenuButton onClick={handleLoadTheme} tooltip='Load Theme'>
+                <FileUp />
+                <span>Load Theme</span>
+              </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton size="sm">
-                <span className="text-xs text-muted-foreground">v1.0.0</span>
+              <SidebarMenuButton onClick={handleNewTheme} tooltip='New Theme'>
+                <Plus />
+                <span>New Theme</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleSave} disabled={!theme} tooltip='Save Theme'>
+                <Save />
+                <span>Save Theme</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton size='sm'>
+                <span className='text-xs text-muted-foreground'>v1.0.0</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

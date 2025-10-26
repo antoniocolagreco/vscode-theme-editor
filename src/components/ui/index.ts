@@ -15,19 +15,22 @@ export {
 } from "./card"
 // Custom components
 export { ColorCircle } from "./color-circle"
-// kibo-ui components
+export { ColorPicker } from "./color-picker"
 export {
-  ColorPicker,
-  ColorPickerAlpha,
-  ColorPickerEyeDropper,
-  ColorPickerFormat,
-  ColorPickerHue,
-  ColorPickerOutput,
-  ColorPickerSelection,
-  useColorPicker,
-} from "./color-picker"
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
+} from "./dialog"
 export { Dropzone, DropzoneContent, DropzoneEmptyState } from "./dropzone"
 export { Input } from "./input"
+export { Label } from "./label"
 export { ScrollArea, ScrollBar } from "./scroll-area"
 export {
   Select,

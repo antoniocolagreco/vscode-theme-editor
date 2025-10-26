@@ -10,10 +10,7 @@ const AddButton: React.FC<AddButtonProps> = ({ className, ...rest }) => {
     <Button
       variant='empty'
       size='sm'
-      className={cn(
-        "h-6 w-6 p-0 cursor-pointer",
-        className
-      )}
+      className={cn("h-6 w-6 p-0 cursor-pointer", className)}
       {...rest}
     >
       <Plus className='h-3 w-3' />

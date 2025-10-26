@@ -28,6 +28,32 @@ A simple and efficient desktop application for creating and managing Visual Stud
 - **Vitest 4** - Test runner
 - **Electron Builder 26** - Package desktop app for distribution
 
+## Testing
+
+The project uses **Vitest** for testing with a minimum **80% code coverage** requirement for business logic.
+
+### Run Tests
+
+```bash
+# Run tests in watch mode
+npm test
+
+# Run tests once
+npm run test -- --run
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Run tests with UI
+npm run test:ui
+```
+
+### Coverage
+
+Current coverage: **84%+** for business logic (theme parsing, utilities, and state management)
+
+The coverage report is generated in the `coverage/` directory and can be viewed in your browser by opening `coverage/index.html`.
+
 ### Conventions
 
 - **Language**: English Only for everything
@@ -35,7 +61,7 @@ A simple and efficient desktop application for creating and managing Visual Stud
 - **Imports**: Barrel exports per layer (`index.ts`)
 - **Components**: Function components with TypeScript
 - **Styling**: Tailwind utility classes, no CSS modules
-- **Testing**: Unit tests co-located with source (`.test.ts`)
+- **Testing**: Unit tests co-located with source (`.test.ts`), 80%+ coverage for business logic
 - **Code Quality**: Biome rules strict, auto-format on save
 
 ## Application Layout
@@ -45,6 +71,8 @@ The app has a collapsible sidebar on the left and a main content area on the rig
 ### Sidebar
 
 - Navigation menu for all pages
+- **Load Theme button** - Upload existing theme JSON file
+- **New Theme button** - Create blank theme from scratch
 - **Save button** at the bottom
   - If theme was loaded from file: overwrites the existing file
   - If theme is new: opens save dialog to choose location
@@ -87,30 +115,29 @@ When loading an existing theme:
 
 ## Pages / Views
 
-### Home / Theme Editor
+### Theme Settings
 
-Main page for creating or loading a theme.
+Main page for configuring basic theme information and viewing scope summaries.
 
 **Components**:
 
-- **File dropzone** at the top to load existing `.json` theme files
-- **Theme metadata fields**:
+- **Theme Metadata**: Edit basic theme information
   - `$schema` (VS Code theme schema URL)
   - `name` (theme display name)
   - `type` (dark, light, hc)
-- **UI Colors section**: Add/edit/delete scopes like `descriptionForeground`, `button.background`
-  - Searchable list with filter-as-you-type
-  - Add, delete, modify scopes
-  - Assign ColorStyles to each scope
-- **Semantic Highlighting checkbox**: Enable/disable semantic tokens
-- **Semantic Token Colors section**: Add/edit/delete scopes like `foreground`, `function.decorator:python`
-  - Searchable list with filter-as-you-type
-  - Add, delete, modify scopes
-  - Assign ColorStyle to foreground and FontStyle
-- **Token Colors section**: Add/edit/delete scopes like `heading.6.markdown punctuation.definition.heading.markdown`
-  - Searchable list with filter-as-you-type
-  - Add, delete, modify scopes
-  - Assign ColorStyles to foreground/background and FontStyle
+  
+- **UI Colors section**: Summary with link to dedicated page
+  - Shows count of defined UI color scopes
+  - Quick overview of `editor.background`, `statusBar.foreground`, etc.
+  
+- **Token Colors section**: Summary with link to dedicated page
+  - Shows count of defined token color scopes
+  - Quick overview of syntax highlighting scopes
+  
+- **Semantic Token Colors section**: Summary with link to dedicated page
+  - Checkbox to enable/disable semantic highlighting
+  - Shows count of defined semantic token scopes
+  - Quick overview of language-specific semantic scopes
 
 ### Colors Editor
 

@@ -11,10 +11,10 @@ function App() {
         <Routes>
           <Route element={<AppLayout />}>
             <Route index element={<HomePage />} />
-            <Route path="/colors" element={<ColorsPage />} />
-            <Route path="/ui-colors" element={<UIColorsPage />} />
-            <Route path="/token-colors" element={<TokenColorsPage />} />
-            <Route path="/semantic-tokens" element={<SemanticTokensPage />} />
+            <Route path='/colors' element={<ColorsPage />} />
+            <Route path='/ui-colors' element={<UIColorsPage />} />
+            <Route path='/token-colors' element={<TokenColorsPage />} />
+            <Route path='/semantic-tokens' element={<SemanticTokensPage />} />
           </Route>
         </Routes>
         <Toaster />
