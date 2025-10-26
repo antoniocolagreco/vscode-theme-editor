@@ -1,0 +1,5 @@
+export { ColorsPage } from "./colors-page"
+export { HomePage } from "./home-page"
+export { SemanticTokensPage } from "./semantic-tokens-page"
+export { TokenColorsPage } from "./token-colors-page"
+export { UIColorsPage } from "./ui-colors-page"

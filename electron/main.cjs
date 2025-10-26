@@ -1,0 +1,63 @@
+const { app, BrowserWindow, ipcMain } = require("electron")
+const path = require("node:path")
+const fs = require("node:fs").promises
+
+let mainWindow
+
+function createWindow() {
+    mainWindow = new BrowserWindow({
+        width: 1400,
+        height: 900,
+        webPreferences: {
+            preload: path.join(__dirname, "preload.cjs"),
+            contextIsolation: true,
+            nodeIntegration: false,
+        },
+    })
+
+    if (process.env.NODE_ENV === "development") {
+        mainWindow.loadURL("http://localhost:5173")
+        mainWindow.webContents.openDevTools()
+    } else {
+        mainWindow.loadFile(path.join(__dirname, "../dist/index.html"))
+    }
+}
+
+app.whenReady().then(createWindow)
+
+app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+        app.quit()
+    }
+})
+
+app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow()
+    }
+})
+
+// IPC Handlers
+ipcMain.handle("saveFile", async (_event, filename, content) => {
+    const filePath = path.join(__dirname, "..", filename)
+    await fs.writeFile(filePath, content, "utf-8")
+    return filePath
+})
+
+ipcMain.handle("loadFile", async (_event, filename) => {
+    const filePath = path.join(__dirname, "..", filename)
+    const content = await fs.readFile(filePath, "utf-8")
+    return content
+})
+
+ipcMain.handle("readFile", async (_event, filename) => {
+    const filePath = path.join(__dirname, "..", filename)
+    const content = await fs.readFile(filePath, "utf-8")
+    return content
+})
+
+ipcMain.handle("listFiles", async () => {
+    const themesDir = path.join(__dirname, "..", "themes")
+    const files = await fs.readdir(themesDir)
+    return files.filter(file => file.endsWith(".json"))
+})
