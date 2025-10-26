@@ -86,7 +86,7 @@ function serializeTokenColors(tokenColors: Map<string, import("@/types").TokenCo
     }
 
     result.push({
-      name: scope,
+      name: "",
       scope: scope,
       settings,
     })
