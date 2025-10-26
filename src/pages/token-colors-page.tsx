@@ -73,8 +73,8 @@ const EditDialog = memo(
     onSave,
   }: EditDialogProps) => {
     const scopeInputRef = useRef<HTMLInputElement>(null)
-    const [selectedForeground, setSelectedForeground] = useState(initialForeground)
-    const [selectedBackground, setSelectedBackground] = useState(initialBackground)
+    const [selectedForeground, setSelectedForeground] = useState(initialForeground || "__none__")
+    const [selectedBackground, setSelectedBackground] = useState(initialBackground || "__none__")
     const [selectedFontStyle, setSelectedFontStyle] = useState<FontStyle | "none">(
       initialFontStyle || "none"
     )
@@ -83,8 +83,8 @@ const EditDialog = memo(
       if (scopeInputRef.current) {
         scopeInputRef.current.value = initialScope
       }
-      setSelectedForeground(initialForeground)
-      setSelectedBackground(initialBackground)
+      setSelectedForeground(initialForeground || "__none__")
+      setSelectedBackground(initialBackground || "__none__")
       setSelectedFontStyle(initialFontStyle || "none")
     }, [initialScope, initialForeground, initialBackground, initialFontStyle])
 
@@ -92,7 +92,9 @@ const EditDialog = memo(
       e.preventDefault()
       const scopeName = scopeInputRef.current?.value || ""
       const fontStyle = selectedFontStyle === "none" ? undefined : selectedFontStyle
-      onSave(scopeName, selectedForeground, selectedBackground, fontStyle)
+      const foreground = selectedForeground === "__none__" ? "" : selectedForeground
+      const background = selectedBackground === "__none__" ? "" : selectedBackground
+      onSave(scopeName, foreground, background, fontStyle)
     }
 
     return (
@@ -126,7 +128,7 @@ const EditDialog = memo(
                       <SelectValue placeholder="Select foreground" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="__none__">None</SelectItem>
                       {availableColors.slice(0, 100).map(([name, style]) => (
                         <SelectItem key={name} value={name}>
                           <div className="flex items-center gap-2">
@@ -139,7 +141,7 @@ const EditDialog = memo(
                         </SelectItem>
                       ))}
                       {availableColors.length > 100 && (
-                        <SelectItem value="" disabled>
+                        <SelectItem value="__more_fg__" disabled>
                           ... and {availableColors.length - 100} more colors
                         </SelectItem>
                       )}
@@ -158,7 +160,7 @@ const EditDialog = memo(
                       <SelectValue placeholder="Select background" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="__none__">None</SelectItem>
                       {availableColors.slice(0, 100).map(([name, style]) => (
                         <SelectItem key={name} value={name}>
                           <div className="flex items-center gap-2">
@@ -171,7 +173,7 @@ const EditDialog = memo(
                         </SelectItem>
                       ))}
                       {availableColors.length > 100 && (
-                        <SelectItem value="" disabled>
+                        <SelectItem value="__more_bg__" disabled>
                           ... and {availableColors.length - 100} more colors
                         </SelectItem>
                       )}
@@ -214,7 +216,9 @@ const EditDialog = memo(
               onClick={() => {
                 const scopeName = scopeInputRef.current?.value || ""
                 const fontStyle = selectedFontStyle === "none" ? undefined : selectedFontStyle
-                onSave(scopeName, selectedForeground, selectedBackground, fontStyle)
+                const foreground = selectedForeground === "__none__" ? "" : selectedForeground
+                const background = selectedBackground === "__none__" ? "" : selectedBackground
+                onSave(scopeName, foreground, background, fontStyle)
               }}
               type="submit"
             >
@@ -333,6 +337,35 @@ export function TokenColorsPage() {
     const searchLower = deferredSearch.toLowerCase()
     return tokenColors.filter(([scope]) => scope.toLowerCase().includes(searchLower))
   }, [tokenColors, deferredSearch])
+
+  // Group token colors by category (first part before the dot)
+  const groupedTokenColors = useMemo(() => {
+    const groups = new Map<string, Array<[string, TokenColor]>>()
+
+    filteredTokenColors.forEach((entry) => {
+      const [scope] = entry
+      const category = scope.split(".")[0] || "other"
+      if (!groups.has(category)) {
+        groups.set(category, [])
+      }
+      const categoryGroup = groups.get(category)
+      if (categoryGroup) {
+        categoryGroup.push(entry)
+      }
+    })
+
+    // Sort groups by name and sort entries within each group
+    const sortedGroups = new Map(
+      Array.from(groups.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([category, entries]) => [
+          category,
+          entries.sort(([a], [b]) => a.localeCompare(b)),
+        ])
+    )
+
+    return sortedGroups
+  }, [filteredTokenColors])
 
   const handleAdd = useCallback(() => {
     setIsAddingNew(true)
@@ -491,15 +524,24 @@ export function TokenColorsPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {filteredTokenColors.map(([scope, tokenColor]) => (
-                  <ColorCard
-                    key={scope}
-                    scope={scope}
-                    tokenColor={tokenColor}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
+              <div className="space-y-6">
+                {Array.from(groupedTokenColors.entries()).map(([category, entries]) => (
+                  <div key={category}>
+                    <h3 className="text-sm font-semibold mb-3 capitalize text-muted-foreground">
+                      {category}
+                    </h3>
+                    <div className="space-y-2">
+                      {entries.map(([scope, tokenColor]) => (
+                        <ColorCard
+                          key={scope}
+                          scope={scope}
+                          tokenColor={tokenColor}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
