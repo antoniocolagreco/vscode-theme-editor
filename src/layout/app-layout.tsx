@@ -2,6 +2,7 @@ import { FileUp, Palette, Plus, Save, Settings, Sparkles, SwatchBook, Target } f
 import { Link, Outlet, useLocation } from "react-router-dom"
 import { toast } from "sonner"
 import {
+  Input,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -47,10 +48,9 @@ const navigationItems = [
   },
 ]
 
-export function AppLayout() {
+function AppContent() {
   const location = useLocation()
   const { theme, setTheme, currentFilePath, setCurrentFilePath } = useTheme()
-  const currentPage = navigationItems.find(item => item.path === location.pathname)
 
   const handleNewTheme = () => {
     const newTheme: VSCodeTheme = {
@@ -107,7 +107,7 @@ export function AppLayout() {
   }
 
   return (
-    <SidebarProvider defaultOpen={true}>
+    <>
       <Sidebar collapsible='icon' variant='sidebar'>
         <SidebarHeader>
           <SidebarMenu>
@@ -181,12 +181,25 @@ export function AppLayout() {
       <SidebarInset>
         <header className='sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 bg-background px-4'>
           <SidebarTrigger className='-ml-1' />
-          <h1 className='text-lg font-semibold'>{currentPage?.title || "VSCode Theme Editor"}</h1>
+          <Input
+            value={currentFilePath || ''}
+            onChange={(e) => setCurrentFilePath(e.target.value)}
+            className='text-sm font-medium flex-1'
+            placeholder='No theme loaded'
+          />
         </header>
         <div className='flex flex-1 flex-col gap-4 p-4 h-full'>
           <Outlet />
         </div>
       </SidebarInset>
+    </>
+  )
+}
+
+export function AppLayout() {
+  return (
+    <SidebarProvider defaultOpen={true}>
+      <AppContent />
     </SidebarProvider>
   )
 }
