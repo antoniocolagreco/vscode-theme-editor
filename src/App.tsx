@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { HashRouter, Route, Routes } from "react-router-dom"
 import { Toaster } from "@/components/ui"
 import { ThemeProvider } from "@/context"
 import { AppLayout } from "@/layout/app-layout"
@@ -7,7 +7,7 @@ import { ColorsPage, HomePage, SemanticTokensPage, TokenColorsPage, UIColorsPage
 function App() {
   return (
     <ThemeProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route element={<AppLayout />}>
             <Route index element={<HomePage />} />
@@ -18,7 +18,7 @@ function App() {
           </Route>
         </Routes>
         <Toaster />
-      </BrowserRouter>
+      </HashRouter>
     </ThemeProvider>
   )
 }

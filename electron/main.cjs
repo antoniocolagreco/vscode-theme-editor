@@ -19,7 +19,9 @@ function createWindow() {
     mainWindow.loadURL("http://localhost:5173")
     mainWindow.webContents.openDevTools()
   } else {
-    mainWindow.loadFile(path.join(__dirname, "dist", "index.html"))
+    // In production, use app.getAppPath() to get the correct base path
+    const indexPath = path.join(app.getAppPath(), "dist", "index.html")
+    mainWindow.loadFile(indexPath)
   }
 }
 

@@ -21,6 +21,7 @@ node_modules
 # Build outputs
 dist
 dist-ssr
+release
 build
 *.local
 

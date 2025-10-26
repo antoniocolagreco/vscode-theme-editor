@@ -1,23 +1,28 @@
 {
   "name": "vscode-theme-editor",
-  "description": "",
+  "description": "Desktop app for editing VS Code theme JSON files",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
     "build": "tsc -b && vite build",
+    "clean": "rm -rf dist release",
     "preview": "vite preview",
+    "package": "npm run clean && npm run build && electron-builder",
     "test": "vitest --run",
     "test:ui": "vitest --ui --run",
     "test:coverage": "vitest --coverage --run",
     "lint": "biome lint src/",
     "format": "biome format src/ --write",
-    "type-check": "tsc --noEmit",
-    "electron:build": "npm run build && electron-builder"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
     "@biomejs/biome": "^2.3.0",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.12",
@@ -41,16 +46,12 @@
     "motion": "^12.23.24",
     "next-themes": "^0.4.6",
     "radix-ui": "^1.4.3",
-    "react": "^19.1.1",
     "react-color": "^2.19.3",
-    "react-dom": "^19.1.1",
     "react-dropzone": "^14.3.8",
     "react-router-dom": "^7.9.4",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.16"
-  },
-  "devDependencies": {
+    "tailwindcss": "^4.1.16",
     "@types/color": "^4.2.0",
     "@types/node": "^24.9.1",
     "@types/react": "^19.1.16",
@@ -79,14 +80,19 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "package.json"
+      "package.json",
+      "!node_modules/**/*"
     ],
+    "asarUnpack": [],
     "directories": {
       "buildResources": "public",
-      "output": "dist"
+      "output": "release"
     },
     "linux": {
-      "target": ["AppImage", "snap"],
+      "target": [
+        "AppImage",
+        "snap"
+      ],
       "category": "Development"
     }
   }
