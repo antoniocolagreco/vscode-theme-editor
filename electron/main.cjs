@@ -39,19 +39,22 @@ app.on("activate", () => {
 
 // IPC Handlers
 ipcMain.handle("saveFile", async (_event, filename, content) => {
-  const filePath = path.join(__dirname, "..", filename)
+  // Use absolute path if provided, otherwise resolve relative to project root
+  const filePath = path.isAbsolute(filename) ? filename : path.join(__dirname, "..", filename)
   await fs.writeFile(filePath, content, "utf-8")
   return filePath
 })
 
 ipcMain.handle("loadFile", async (_event, filename) => {
-  const filePath = path.join(__dirname, "..", filename)
+  // Use absolute path if provided, otherwise resolve relative to project root
+  const filePath = path.isAbsolute(filename) ? filename : path.join(__dirname, "..", filename)
   const content = await fs.readFile(filePath, "utf-8")
   return content
 })
 
 ipcMain.handle("readFile", async (_event, filename) => {
-  const filePath = path.join(__dirname, "..", filename)
+  // Use absolute path if provided, otherwise resolve relative to project root
+  const filePath = path.isAbsolute(filename) ? filename : path.join(__dirname, "..", filename)
   const content = await fs.readFile(filePath, "utf-8")
   return content
 })

@@ -189,6 +189,95 @@ describe("file-service", () => {
       expect(parsed.semanticHighlighting).toBe(true)
     })
 
+    it("should sort entries by specificity (more specific first)", async () => {
+      const color1 = createColorStyle("color1", "#111111")
+      const color2 = createColorStyle("color2", "#222222")
+      const color3 = createColorStyle("color3", "#333333")
+      const color4 = createColorStyle("color4", "#444444")
+
+      const theme: VSCodeTheme = {
+        $schema: "vscode://schemas/color-theme",
+        name: "Specificity Test",
+        type: "dark",
+        colorStyles: new Map([
+          ["base", color1],
+          ["base.child", color2],
+          ["base.child.grandchild", color3],
+          ["another", color4],
+        ]),
+        colors: new Map([
+          ["editor.background", { colorStyle: color1 }],
+          ["editor.foreground.active", { colorStyle: color2 }],
+          ["editor.foreground", { colorStyle: color3 }],
+        ]),
+        tokenColors: new Map([
+          ["comment", { foreground: color1 }],
+          ["comment.block.documentation", { foreground: color2 }],
+          ["comment.block", { foreground: color3 }],
+        ]),
+      }
+
+      mockElectronAPI.saveFile.mockResolvedValue("/path/to/theme.json")
+
+      await saveThemeToFile("theme.json", theme)
+
+      const savedContent = mockElectronAPI.saveFile.mock.calls[0][1]
+      const parsed = JSON.parse(savedContent)
+
+      // Verify colors order: more specific first (object with string values)
+      const colorsKeys = Object.keys(parsed.colors)
+      expect(colorsKeys[0]).toBe("editor.foreground.active") // 2 dots
+      expect(colorsKeys[1]).toBe("editor.background") // 1 dot
+      expect(colorsKeys[2]).toBe("editor.foreground") // 1 dot
+      expect(parsed.colors["editor.background"]).toBe("#111111")
+
+      // Verify tokenColors order (array format)
+      expect(Array.isArray(parsed.tokenColors)).toBe(true)
+      expect(parsed.tokenColors[0].scope).toBe("comment.block.documentation") // 2 dots
+      expect(parsed.tokenColors[1].scope).toBe("comment.block") // 1 dot
+      expect(parsed.tokenColors[2].scope).toBe("comment") // 0 dots
+      expect(parsed.tokenColors[0].settings.foreground).toBe("#222222")
+
+      // Verify colorStyles is saved (custom field)
+      expect(parsed.colorStyles).toBeDefined()
+      const colorStylesKeys = Object.keys(parsed.colorStyles)
+      expect(colorStylesKeys.length).toBe(4)
+    })
+
+    it("should sort entries alphabetically at same specificity level", async () => {
+      const color1 = createColorStyle("color1", "#111111")
+      const color2 = createColorStyle("color2", "#222222")
+      const color3 = createColorStyle("color3", "#333333")
+
+      const theme: VSCodeTheme = {
+        $schema: "vscode://schemas/color-theme",
+        name: "Alphabetical Test",
+        type: "dark",
+        colorStyles: new Map([
+          ["zebra", color1],
+          ["alpha", color2],
+          ["beta", color3],
+        ]),
+        colors: new Map([
+          ["window.border", { colorStyle: color1 }],
+          ["editor.background", { colorStyle: color2 }],
+          ["menu.foreground", { colorStyle: color3 }],
+        ]),
+        tokenColors: new Map(),
+      }
+
+      mockElectronAPI.saveFile.mockResolvedValue("/path/to/theme.json")
+
+      await saveThemeToFile("theme.json", theme)
+
+      const savedContent = mockElectronAPI.saveFile.mock.calls[0][1]
+      const parsed = JSON.parse(savedContent)
+
+      // All have same depth (1 dot), should be alphabetical
+      const colorsKeys = Object.keys(parsed.colors)
+      expect(colorsKeys).toEqual(["editor.background", "menu.foreground", "window.border"])
+    })
+
     it("should save theme with empty Maps as empty objects", async () => {
       const theme: VSCodeTheme = {
         $schema: "vscode://schemas/color-theme",
@@ -206,9 +295,10 @@ describe("file-service", () => {
       const savedContent = mockElectronAPI.saveFile.mock.calls[0][1]
       const parsed = JSON.parse(savedContent)
 
-      expect(parsed.colorStyles).toEqual({})
       expect(parsed.colors).toEqual({})
-      expect(parsed.tokenColors).toEqual({})
+      expect(parsed.tokenColors).toEqual([])
+      expect(parsed.semanticTokenColors).toBeUndefined()
+      expect(parsed.colorStyles).toEqual({})
     })
 
     it("should save theme without semanticTokenColors when undefined", async () => {
@@ -249,6 +339,7 @@ describe("file-service", () => {
       const savedContent = mockElectronAPI.saveFile.mock.calls[0][1]
       const parsed = JSON.parse(savedContent)
 
+      // colorStyles should be saved as custom field (empty object when no styles)
       expect(parsed.colorStyles).toEqual({})
     })
 
@@ -333,9 +424,13 @@ describe("file-service", () => {
       expect(loadedTheme.name).toBe(originalTheme.name)
       expect(loadedTheme.type).toBe(originalTheme.type)
       expect(loadedTheme.semanticHighlighting).toBe(originalTheme.semanticHighlighting)
+      // colorStyles should be preserved in the saved file
       expect(loadedTheme.colorStyles?.size).toBe(2)
       expect(loadedTheme.colors.size).toBe(1)
       expect(loadedTheme.tokenColors.size).toBe(1)
+      // And the color values should be preserved
+      const editorFg = loadedTheme.colors.get("editor.foreground")
+      expect(editorFg).toBeDefined()
     })
   })
 })
