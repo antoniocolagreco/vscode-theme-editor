@@ -6,8 +6,8 @@ describe("extractColorsFromTheme", () => {
   it("should extract colors from UI colors", () => {
     const theme: Partial<VSCodeTheme> = {
       colors: new Map([
-        ["editor.background", { colorStyle: { name: "Dark BG", value: "#1e1e1e" } }],
-        ["editor.foreground", { colorStyle: { name: "Light Text", value: "#d4d4d4" } }],
+        ["editor.background", { colorStyle: { name: "Dark BG", value: "#1e1e1e", scopes: new Set() } }],
+        ["editor.foreground", { colorStyle: { name: "Light Text", value: "#d4d4d4", scopes: new Set() } }],
       ]),
     }
 
@@ -24,8 +24,8 @@ describe("extractColorsFromTheme", () => {
         [
           "comment",
           {
-            foreground: { name: "Comment Green", value: "#6A9955" },
-            background: { name: "Highlight", value: "#2A2A2A" },
+            foreground: { name: "Comment Green", value: "#6A9955", scopes: new Set() },
+            background: { name: "Highlight", value: "#2A2A2A", scopes: new Set() },
           },
         ],
       ]),
@@ -41,8 +41,8 @@ describe("extractColorsFromTheme", () => {
   it("should extract colors from semantic token colors", () => {
     const theme: Partial<VSCodeTheme> = {
       semanticTokenColors: new Map([
-        ["variable", { foreground: { name: "Variable Blue", value: "#9CDCFE" } }],
-        ["function", { foreground: { name: "Function Yellow", value: "#DCDCAA" } }],
+        ["variable", { foreground: { name: "Variable Blue", value: "#9CDCFE", scopes: new Set() } }],
+        ["function", { foreground: { name: "Function Yellow", value: "#DCDCAA", scopes: new Set() } }],
       ]),
     }
 
@@ -56,8 +56,8 @@ describe("extractColorsFromTheme", () => {
   it("should not create duplicates for same color value", () => {
     const theme: Partial<VSCodeTheme> = {
       colors: new Map([
-        ["editor.background", { colorStyle: { name: "Dark", value: "#1e1e1e" } }],
-        ["sidebar.background", { colorStyle: { name: "Dark", value: "#1e1e1e" } }],
+        ["editor.background", { colorStyle: { name: "Dark", value: "#1e1e1e", scopes: new Set() } }],
+        ["sidebar.background", { colorStyle: { name: "Dark", value: "#1e1e1e", scopes: new Set() } }],
       ]),
     }
 
@@ -89,10 +89,10 @@ describe("extractColorsFromTheme", () => {
 
   it("should extract colors from all sections combined", () => {
     const theme: Partial<VSCodeTheme> = {
-      colors: new Map([["editor.background", { colorStyle: { name: "BG", value: "#1e1e1e" } }]]),
-      tokenColors: new Map([["comment", { foreground: { name: "Comment", value: "#6A9955" } }]]),
+      colors: new Map([["editor.background", { colorStyle: { name: "BG", value: "#1e1e1e", scopes: new Set() } }]]),
+      tokenColors: new Map([["comment", { foreground: { name: "Comment", value: "#6A9955", scopes: new Set() } }]]),
       semanticTokenColors: new Map([
-        ["variable", { foreground: { name: "Variable", value: "#9CDCFE" } }],
+        ["variable", { foreground: { name: "Variable", value: "#9CDCFE", scopes: new Set() } }],
       ]),
     }
 

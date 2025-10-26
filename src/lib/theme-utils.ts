@@ -20,6 +20,7 @@ export function extractColorsFromTheme(theme: Partial<VSCodeTheme>): Map<string,
     const colorStyle: ColorStyle = {
       name: `Color ${colorIndex}`,
       value: colorValue,
+      scopes: new Set(),
     }
     colorMap.set(colorStyle.name, colorStyle)
     colorIndex++

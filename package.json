@@ -72,5 +72,22 @@
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.1.14"
+  },
+  "build": {
+    "appId": "com.antoniocolagreco.vscode-theme-editor",
+    "productName": "VS Code Theme Editor",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "public",
+      "output": "dist"
+    },
+    "linux": {
+      "target": ["AppImage", "snap"],
+      "category": "Development"
+    }
   }
 }
