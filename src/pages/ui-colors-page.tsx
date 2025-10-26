@@ -1,4 +1,4 @@
-import { Palette, Plus, Search } from "lucide-react"
+import { ArrowDownAZ, ArrowUpAZ, Palette, Plus, Search } from "lucide-react"
 import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
@@ -25,6 +25,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  ToggleGroup,
+  ToggleGroupItem,
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -182,6 +184,8 @@ export function UIColorsPage() {
   const [dialogInitialScope, setDialogInitialScope] = useState<string>("")
   const [dialogInitialColor, setDialogInitialColor] = useState<string>("")
   const [isAddingNew, setIsAddingNew] = useState(false)
+  const [sortBy, setSortBy] = useState<"default" | "name">("default")
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
 
   const uiColors = useMemo(() => Array.from(theme?.colors?.entries() || []), [theme?.colors])
   const availableColors = useMemo(() => Array.from(theme?.colorStyles?.entries() || []), [theme?.colorStyles])
@@ -202,7 +206,7 @@ export function UIColorsPage() {
 
     filteredUIColors.forEach(entry => {
       const [scope] = entry
-      const category = scope.split(".")[0] || "other"
+      const category = sortBy === "default" ? scope.split(".")[0] || "other" : "all"
       if (!groups.has(category)) {
         groups.set(category, [])
       }
@@ -212,18 +216,19 @@ export function UIColorsPage() {
       }
     })
 
+    // Sort function based on order
+    const sortFn = (a: string, b: string) =>
+      sortOrder === "asc" ? a.localeCompare(b) : b.localeCompare(a)
+
     // Sort groups by name and sort entries within each group
     const sortedGroups = new Map(
       Array.from(groups.entries())
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([category, entries]) => [
-          category,
-          entries.sort(([a], [b]) => a.localeCompare(b)),
-        ])
+        .sort(([a], [b]) => (sortBy === "default" ? sortFn(a, b) : 0))
+        .map(([category, entries]) => [category, entries.sort(([a], [b]) => sortFn(a, b))])
     )
 
     return sortedGroups
-  }, [filteredUIColors])
+  }, [filteredUIColors, sortBy, sortOrder])
 
   const validateSaveInput = useCallback((scopeName: string, selectedColorName: string): { valid: boolean; colorStyle?: ColorStyle } => {
     if (!scopeName.trim()) {
@@ -345,6 +350,50 @@ export function UIColorsPage() {
                 className='pl-9'
               />
             </div>
+            <ToggleGroup type="single" value={sortBy} onValueChange={(value) => value && setSortBy(value as "default" | "name")}>
+              <ToggleGroupItem value="default" aria-label="Group by category" variant="outline">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="text-xs">Default</span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Group by category</p>
+                  </TooltipContent>
+                </Tooltip>
+              </ToggleGroupItem>
+              <ToggleGroupItem value="name" aria-label="Sort by name" variant="outline">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="text-xs">Name</span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Sort by name only</p>
+                  </TooltipContent>
+                </Tooltip>
+              </ToggleGroupItem>
+            </ToggleGroup>
+            <ToggleGroup type="single" value={sortOrder} onValueChange={(value) => value && setSortOrder(value as "asc" | "desc")}>
+              <ToggleGroupItem value="asc" aria-label="Ascending order" variant="outline">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <ArrowUpAZ className="h-4 w-4" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Ascending</p>
+                  </TooltipContent>
+                </Tooltip>
+              </ToggleGroupItem>
+              <ToggleGroupItem value="desc" aria-label="Descending order" variant="outline">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <ArrowDownAZ className="h-4 w-4" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Descending</p>
+                  </TooltipContent>
+                </Tooltip>
+              </ToggleGroupItem>
+            </ToggleGroup>
             <Button
               onClick={handleAdd}
               variant='outline'
@@ -367,9 +416,11 @@ export function UIColorsPage() {
               <div className='space-y-6'>
                 {Array.from(groupedColors.entries()).map(([category, entries]) => (
                   <div key={category}>
-                    <h3 className='text-sm font-semibold mb-3 capitalize text-muted-foreground'>
-                      {category}
-                    </h3>
+                    {sortBy === "default" && (
+                      <h3 className='text-sm font-semibold mb-3 capitalize text-muted-foreground'>
+                        {category}
+                      </h3>
+                    )}
                     <div className='space-y-2'>
                       {entries.map(([scope, uiColor]) => (
                         <ColorCard
