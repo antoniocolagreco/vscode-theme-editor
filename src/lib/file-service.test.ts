@@ -19,6 +19,10 @@ describe("file-service", () => {
     loadFile: vi.fn(),
     listFiles: vi.fn(),
     openFileDialog: vi.fn(),
+    getWindowCapabilities: vi.fn(),
+    windowMinimize: vi.fn(),
+    windowMaximize: vi.fn(),
+    windowClose: vi.fn(),
   }
 
   beforeEach(() => {
