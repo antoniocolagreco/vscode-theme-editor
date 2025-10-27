@@ -43,6 +43,27 @@ interface ElectronAPI {
    * @returns Oggetto con filePath e content, o null se cancellato
    */
   openFileDialog(): Promise<{ filePath: string; content: string } | null>
+
+  /**
+   * Verifica le capacità del window manager
+   * @returns Oggetto con flag per minimize/maximize
+   */
+  getWindowCapabilities(): Promise<{ canMinimize: boolean; canMaximize: boolean }>
+
+  /**
+   * Minimizza la finestra (no-op su tiling window managers)
+   */
+  windowMinimize(): Promise<void>
+
+  /**
+   * Massimizza/ripristina la finestra
+   */
+  windowMaximize(): Promise<void>
+
+  /**
+   * Chiude la finestra
+   */
+  windowClose(): Promise<void>
 }
 
 declare global {

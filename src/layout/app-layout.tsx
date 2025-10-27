@@ -16,6 +16,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui"
+import { WindowControls } from "@/components/window-controls"
 import { useTheme } from "@/context"
 import { parseThemeFromJSON, saveThemeToFile } from "@/lib"
 import type { VSCodeTheme } from "@/types"
@@ -180,13 +181,14 @@ function AppContent() {
 
       <SidebarInset>
         <header className='sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 bg-background px-4'>
-          <SidebarTrigger className='-ml-1' />
+          <SidebarTrigger className='-ml-1 size-9' size="icon-lg" />
           <Input
             value={currentFilePath || ''}
             onChange={(e) => setCurrentFilePath(e.target.value)}
             className='text-sm font-medium flex-1'
             placeholder='No theme loaded'
           />
+          <WindowControls />
         </header>
         <div className='flex flex-1 flex-col gap-4 p-4 h-full'>
           <Outlet />

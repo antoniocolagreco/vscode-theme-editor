@@ -4,16 +4,29 @@ const fs = require("node:fs").promises
 
 let mainWindow
 
+// Detect if running on a tiling window manager (Hyprland, i3, sway, etc.)
+function isTilingWM() {
+  if (process.platform !== "linux") {
+    return false
+  }
+  const session = process.env.XDG_CURRENT_DESKTOP || process.env.DESKTOP_SESSION || ""
+  const tilingWMs = ["hyprland", "i3", "sway", "bspwm", "dwm", "xmonad"]
+  return tilingWMs.some(wm => session.toLowerCase().includes(wm))
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: 1280,
+    height: 720,
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
     },
   })
+
+  // Remove menu bar completely (File, Edit, View, etc.)
+  mainWindow.removeMenu()
 
   if (process.env.NODE_ENV === "development") {
     mainWindow.loadURL("http://localhost:5173")
@@ -83,4 +96,35 @@ ipcMain.handle("openFileDialog", async () => {
   const filePath = result.filePaths[0]
   const content = await fs.readFile(filePath, "utf-8")
   return { filePath, content }
+})
+
+// Check window manager capabilities
+ipcMain.handle("getWindowCapabilities", () => {
+  return {
+    canMinimize: !isTilingWM() && (mainWindow?.minimizable ?? false),
+    canMaximize: mainWindow?.maximizable ?? false,
+  }
+})
+
+// Window controls
+ipcMain.handle("windowMinimize", () => {
+  if (mainWindow?.minimizable && !isTilingWM()) {
+    mainWindow.minimize()
+  }
+})
+
+ipcMain.handle("windowMaximize", () => {
+  if (mainWindow?.maximizable) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize()
+    } else {
+      mainWindow.maximize()
+    }
+  }
+})
+
+ipcMain.handle("windowClose", () => {
+  if (mainWindow) {
+    mainWindow.close()
+  }
 })
