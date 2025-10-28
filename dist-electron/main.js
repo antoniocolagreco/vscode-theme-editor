@@ -1,11 +1,16 @@
-var __commonJSMin = (e, t) => () => (t || e((t = { exports: {} }).exports, t), t.exports), __require = /* @__PURE__ */ ((e) => typeof require < "u" ? require : typeof Proxy < "u" ? new Proxy(e, { get: (e, t) => (typeof require < "u" ? require : e)[t] }) : e)(function(e) {
-	if (typeof require < "u") return require.apply(this, arguments);
-	throw Error("Calling `require` for \"" + e + "\" in an environment that doesn't expose the `require` function.");
-}), require_main = /* @__PURE__ */ __commonJSMin((() => {
-	var { app: e, BrowserWindow: n, ipcMain: r, dialog: i } = __require("electron"), a = __require("node:path"), o = __require("node:fs").promises, s;
-	function c() {
-		if (process.platform !== "linux") return !1;
-		let e = process.env.XDG_CURRENT_DESKTOP || process.env.DESKTOP_SESSION || "";
+var __commonJSMin = (cb, mod) => () => (mod || cb((mod = { exports: {} }).exports, mod), mod.exports);
+var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, { get: (a, b) => (typeof require !== "undefined" ? require : a)[b] }) : x)(function(x) {
+	if (typeof require !== "undefined") return require.apply(this, arguments);
+	throw Error("Calling `require` for \"" + x + "\" in an environment that doesn't expose the `require` function.");
+});
+var require_main = /* @__PURE__ */ __commonJSMin((() => {
+	var { app, BrowserWindow, ipcMain, dialog } = __require("electron");
+	var path = __require("node:path");
+	var fs = __require("node:fs").promises;
+	var mainWindow;
+	function isTilingWM() {
+		if (process.platform !== "linux") return false;
+		const session = process.env.XDG_CURRENT_DESKTOP || process.env.DESKTOP_SESSION || "";
 		return [
 			"hyprland",
 			"i3",
@@ -13,41 +18,52 @@ var __commonJSMin = (e, t) => () => (t || e((t = { exports: {} }).exports, t), t
 			"bspwm",
 			"dwm",
 			"xmonad"
-		].some((t) => e.toLowerCase().includes(t));
+		].some((wm) => session.toLowerCase().includes(wm));
 	}
-	function l() {
-		if (s = new n({
+	function createWindow() {
+		mainWindow = new BrowserWindow({
 			width: 1280,
 			height: 720,
 			webPreferences: {
-				preload: a.join(__dirname, "preload.cjs"),
-				contextIsolation: !0,
-				nodeIntegration: !1
+				preload: path.join(__dirname, "preload.cjs"),
+				contextIsolation: true,
+				nodeIntegration: false
 			}
-		}), process.env.VITE_DEV_SERVER_URL) s.loadURL(process.env.VITE_DEV_SERVER_URL), s.webContents.openDevTools();
-		else {
-			let t = a.join(e.getAppPath(), "dist", "index.html");
-			s.loadFile(t);
+		});
+		if (process.env.VITE_DEV_SERVER_URL) {
+			mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+			mainWindow.webContents.openDevTools();
+		} else {
+			const indexPath = path.join(app.getAppPath(), "dist", "index.html");
+			mainWindow.loadFile(indexPath);
 		}
 	}
-	e.whenReady().then(l), e.on("window-all-closed", () => {
-		process.platform !== "darwin" && e.quit();
-	}), e.on("activate", () => {
-		n.getAllWindows().length === 0 && l();
-	}), r.handle("saveFile", async (e, t, n) => {
-		let r = a.isAbsolute(t) ? t : a.join(__dirname, "..", t);
-		return await o.writeFile(r, n, "utf-8"), r;
-	}), r.handle("loadFile", async (e, t) => {
-		let n = a.isAbsolute(t) ? t : a.join(__dirname, "..", t);
-		return await o.readFile(n, "utf-8");
-	}), r.handle("readFile", async (e, t) => {
-		let n = a.isAbsolute(t) ? t : a.join(__dirname, "..", t);
-		return await o.readFile(n, "utf-8");
-	}), r.handle("listFiles", async () => {
-		let e = a.join(__dirname, "..", "themes");
-		return (await o.readdir(e)).filter((e) => e.endsWith(".json"));
-	}), r.handle("openFileDialog", async () => {
-		let e = await i.showOpenDialog(s, {
+	app.whenReady().then(createWindow);
+	app.on("window-all-closed", () => {
+		if (process.platform !== "darwin") app.quit();
+	});
+	app.on("activate", () => {
+		if (BrowserWindow.getAllWindows().length === 0) createWindow();
+	});
+	ipcMain.handle("saveFile", async (_event, filename, content) => {
+		const filePath = path.isAbsolute(filename) ? filename : path.join(__dirname, "..", filename);
+		await fs.writeFile(filePath, content, "utf-8");
+		return filePath;
+	});
+	ipcMain.handle("loadFile", async (_event, filename) => {
+		const filePath = path.isAbsolute(filename) ? filename : path.join(__dirname, "..", filename);
+		return await fs.readFile(filePath, "utf-8");
+	});
+	ipcMain.handle("readFile", async (_event, filename) => {
+		const filePath = path.isAbsolute(filename) ? filename : path.join(__dirname, "..", filename);
+		return await fs.readFile(filePath, "utf-8");
+	});
+	ipcMain.handle("listFiles", async () => {
+		const themesDir = path.join(__dirname, "..", "themes");
+		return (await fs.readdir(themesDir)).filter((file) => file.endsWith(".json"));
+	});
+	ipcMain.handle("openFileDialog", async () => {
+		const result = await dialog.showOpenDialog(mainWindow, {
 			properties: ["openFile"],
 			filters: [{
 				name: "JSON Files",
@@ -57,21 +73,29 @@ var __commonJSMin = (e, t) => () => (t || e((t = { exports: {} }).exports, t), t
 				extensions: ["*"]
 			}]
 		});
-		if (e.canceled || e.filePaths.length === 0) return null;
-		let t = e.filePaths[0], n = await o.readFile(t, "utf-8");
+		if (result.canceled || result.filePaths.length === 0) return null;
+		const filePath = result.filePaths[0];
+		const content = await fs.readFile(filePath, "utf-8");
 		return {
-			filePath: t,
-			content: n
+			filePath,
+			content
 		};
-	}), r.handle("getWindowCapabilities", () => ({
-		canMinimize: !c() && (s?.minimizable ?? !1),
-		canMaximize: !c() && (s?.maximizable ?? !1)
-	})), r.handle("windowMinimize", () => {
-		s?.minimizable && !c() && s.minimize();
-	}), r.handle("windowMaximize", () => {
-		s?.maximizable && (s.isMaximized() ? s.unmaximize() : s.maximize());
-	}), r.handle("windowClose", () => {
-		s && s.close();
+	});
+	ipcMain.handle("getWindowCapabilities", () => {
+		return {
+			canMinimize: !isTilingWM() && (mainWindow?.minimizable ?? false),
+			canMaximize: !isTilingWM() && (mainWindow?.maximizable ?? false)
+		};
+	});
+	ipcMain.handle("windowMinimize", () => {
+		if (mainWindow?.minimizable && !isTilingWM()) mainWindow.minimize();
+	});
+	ipcMain.handle("windowMaximize", () => {
+		if (mainWindow?.maximizable) if (mainWindow.isMaximized()) mainWindow.unmaximize();
+		else mainWindow.maximize();
+	});
+	ipcMain.handle("windowClose", () => {
+		if (mainWindow) mainWindow.close();
 	});
 }));
 export default require_main();

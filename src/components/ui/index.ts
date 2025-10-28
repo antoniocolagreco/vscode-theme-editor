@@ -29,7 +29,6 @@ export {
   DialogTitle,
   DialogTrigger,
 } from "./dialog"
-export { Dropzone, DropzoneContent, DropzoneEmptyState } from "./dropzone"
 export { Input } from "./input"
 export { Label } from "./label"
 export { ScrollArea, ScrollBar } from "./scroll-area"
