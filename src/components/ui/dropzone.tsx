@@ -123,7 +123,7 @@ export const DropzoneContent = ({ children, className }: DropzoneContentProps) =
 
   return (
     <div className={cn("flex flex-col items-center justify-center", className)}>
-      <div className='flex size-8 items-center justify-center rounded-md bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'>
+      <div className='flex size-8 items-center justify-center rounded-md bg-slate-100 text-muted-foreground dark:bg-slate-800 '>
         <UploadIcon size={16} />
       </div>
       <p className='my-2 w-full truncate font-medium text-sm'>
@@ -133,7 +133,7 @@ export const DropzoneContent = ({ children, className }: DropzoneContentProps) =
             )} and ${src.length - maxLabelItems} more`
           : new Intl.ListFormat("en").format(src.map(file => file.name))}
       </p>
-      <p className='w-full text-wrap text-slate-500 text-xs dark:text-slate-400'>
+      <p className='w-full text-wrap text-muted-foreground text-xs '>
         Drag and drop or click to replace
       </p>
     </div>
@@ -173,18 +173,16 @@ export const DropzoneEmptyState = ({ children, className }: DropzoneEmptyStatePr
 
   return (
     <div className={cn("flex flex-col items-center justify-center", className)}>
-      <div className='flex size-8 items-center justify-center rounded-md bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'>
+      <div className='flex size-8 items-center justify-center rounded-md bg-slate-100 text-muted-foreground dark:bg-slate-800 '>
         <UploadIcon size={16} />
       </div>
       <p className='my-2 w-full truncate text-wrap font-medium text-sm'>
         Upload {maxFiles === 1 ? "a file" : "files"}
       </p>
-      <p className='w-full truncate text-wrap text-slate-500 text-xs dark:text-slate-400'>
+      <p className='w-full truncate text-wrap text-muted-foreground text-xs '>
         Drag and drop or click to upload
       </p>
-      {caption && (
-        <p className='text-wrap text-slate-500 text-xs dark:text-slate-400'>{caption}.</p>
-      )}
+      {caption && <p className='text-wrap text-muted-foreground text-xs '>{caption}.</p>}
     </div>
   )
 }

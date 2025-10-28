@@ -22,36 +22,31 @@ export function WindowControls() {
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className='flex items-center gap-1'>
       {capabilities.canMinimize && (
         <Button
-          variant="ghost"
-          size="icon"
-          className="size-9"
+          variant='ghost'
+          size='icon'
+          className='size-9'
           onClick={handleMinimize}
-          title="Minimize"
+          title='Minimize'
         >
-          <Minimize className="h-4 w-4" />
+          <Minimize className='h-4 w-4' />
         </Button>
       )}
       {capabilities.canMaximize && (
         <Button
-          variant="ghost"
-          size="icon"
-          className="size-9"
+          variant='ghost'
+          size='icon'
+          className='size-9'
           onClick={handleMaximize}
-          title="Maximize"
+          title='Maximize'
         >
-          <Maximize className="h-4 w-4" />
-        </Button>)}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-9"
-        onClick={handleClose}
-        title="Close"
-      >
-        <X className="h-4 w-4" />
+          <Maximize className='h-4 w-4' />
+        </Button>
+      )}
+      <Button variant='ghost' size='icon' className='size-9' onClick={handleClose} title='Close'>
+        <X className='h-4 w-4' />
       </Button>
     </div>
   )

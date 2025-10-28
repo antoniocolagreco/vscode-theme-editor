@@ -53,8 +53,10 @@ export function ColorsPage() {
     const searchLower = search.toLowerCase()
     const filtered = colorStyles.filter(([name, style]) => {
       // Match by name or value
-      if (name.toLowerCase().includes(searchLower) ||
-        style.value.toLowerCase().includes(searchLower)) {
+      if (
+        name.toLowerCase().includes(searchLower) ||
+        style.value.toLowerCase().includes(searchLower)
+      ) {
         return true
       }
 
@@ -100,9 +102,10 @@ export function ColorsPage() {
     }
 
     const sorted = [...filtered].sort(([nameA, styleA], [nameB, styleB]) => {
-      const compareResult = sortBy === "name"
-        ? compareByName(nameA, nameB)
-        : compareByColorClassification(styleA.value, styleB.value)
+      const compareResult =
+        sortBy === "name"
+          ? compareByName(nameA, nameB)
+          : compareByColorClassification(styleA.value, styleB.value)
 
       return sortOrder === "asc" ? compareResult : -compareResult
     })
@@ -124,7 +127,7 @@ export function ColorsPage() {
         </CardContent>
       </Card>
     )
-  }  // Find all scopes using a specific color style
+  } // Find all scopes using a specific color style
   // Optimized to use pre-computed scopes field
   const getScopesUsingColor = getScopesForColor
 
@@ -206,31 +209,40 @@ export function ColorsPage() {
               />
             </div>
 
-            <ToggleGroup type='single' value={sortBy} onValueChange={(value) => value && setSortBy(value as SortBy)}>
-              <ToggleGroupItem value='default' aria-label='No sorting' variant="outline">
+            <ToggleGroup
+              type='single'
+              value={sortBy}
+              onValueChange={value => value && setSortBy(value as SortBy)}
+            >
+              <ToggleGroupItem value='default' aria-label='No sorting' variant='outline'>
                 Default
               </ToggleGroupItem>
-              <ToggleGroupItem value='name' aria-label='Sort by name' variant="outline">
+              <ToggleGroupItem value='name' aria-label='Sort by name' variant='outline'>
                 Name
               </ToggleGroupItem>
-              <ToggleGroupItem value='value' aria-label='Sort by value' variant="outline">
+              <ToggleGroupItem value='value' aria-label='Sort by value' variant='outline'>
                 Value
               </ToggleGroupItem>
             </ToggleGroup>
 
-            <ToggleGroup type='single' value={sortOrder} onValueChange={(value) => value && setSortOrder(value as SortOrder)}>
-              <ToggleGroupItem value='asc' aria-label='Sort ascending' variant="outline">
+            <ToggleGroup
+              type='single'
+              value={sortOrder}
+              onValueChange={value => value && setSortOrder(value as SortOrder)}
+            >
+              <ToggleGroupItem value='asc' aria-label='Sort ascending' variant='outline'>
                 <ArrowUpAZ className='h-4 w-4' />
               </ToggleGroupItem>
-              <ToggleGroupItem value='desc' aria-label='Sort descending' variant="outline">
+              <ToggleGroupItem value='desc' aria-label='Sort descending' variant='outline'>
                 <ArrowDownAZ className='h-4 w-4' />
               </ToggleGroupItem>
             </ToggleGroup>
 
-            <Button onClick={handleAdd}
+            <Button
+              onClick={handleAdd}
               variant='outline'
               size='sm'
-              className="h-9 w-9 p-0 cursor-pointer"
+              className='h-9 w-9 p-0 cursor-pointer'
             >
               <Plus className='h-3 w-3' />
             </Button>
@@ -262,10 +274,12 @@ export function ColorsPage() {
                             <TooltipContent className='max-w-md max-h-96 overflow-y-auto'>
                               <div className='space-y-1'>
                                 <p className='font-semibold text-sm mb-2'>
-                                  Used in {scopes.length} scope{scopes.length !== 1 ? 's' : ''}:
+                                  Used in {scopes.length} scope{scopes.length !== 1 ? "s" : ""}:
                                 </p>
                                 {scopes.length === 0 ? (
-                                  <p className='text-xs text-muted-foreground'>Not used in any scope</p>
+                                  <p className='text-xs text-muted-foreground'>
+                                    Not used in any scope
+                                  </p>
                                 ) : (
                                   <ul className='text-xs space-y-0.5'>
                                     {scopes.slice(0, 50).map((scope: string) => (

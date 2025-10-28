@@ -14,19 +14,12 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": [
-      "**",
-      "!**/node_modules",
-      "!**/dist",
-      "!**/build"
-    ]
+    "includes": ["**", "!**/node_modules", "!**/dist", "!**/build"]
   },
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
-    "includes": [
-      "**"
-    ],
+    "includes": ["**"],
     "indentStyle": "space",
     "indentWidth": 2,
     "lineEnding": "lf",
@@ -137,9 +130,7 @@
   },
   "overrides": [
     {
-      "includes": [
-        "**/*.css"
-      ],
+      "includes": ["**/*.css"],
       "linter": {
         "enabled": false
       }

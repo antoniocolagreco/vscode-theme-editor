@@ -53,8 +53,6 @@ export {
   SheetDescription,
   SheetFooter,
   SheetHeader,
-  SheetOverlay,
-  SheetPortal,
   SheetTitle,
   SheetTrigger,
 } from "./sheet"
@@ -93,14 +91,3 @@ export {
   TooltipProvider,
   TooltipTrigger,
 } from "./tooltip"
-export {
-  TreeExpander,
-  TreeIcon,
-  TreeLabel,
-  TreeLines,
-  TreeNode,
-  TreeNodeContent,
-  TreeNodeTrigger,
-  TreeProvider,
-  TreeView,
-} from "./tree"

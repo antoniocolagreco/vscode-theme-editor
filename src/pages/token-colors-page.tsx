@@ -101,104 +101,98 @@ const EditDialog = memo(
 
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className='max-w-2xl'>
           <DialogHeader>
             <DialogTitle>{isAddingNew ? "Add Token Color" : "Edit Token Color"}</DialogTitle>
             <DialogDescription>
-              {isAddingNew
-                ? "Create a new token color scope"
-                : "Modify the token color scope"}
+              {isAddingNew ? "Create a new token color scope" : "Modify the token color scope"}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="scope-name">Scope Name</Label>
+            <div className='space-y-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='scope-name'>Scope Name</Label>
                 <Input
                   ref={scopeInputRef}
-                  id="scope-name"
+                  id='scope-name'
                   defaultValue={initialScope}
-                  placeholder="e.g., comment, string, keyword"
+                  placeholder='e.g., comment, string, keyword'
                   autoFocus
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="foreground-select">Foreground Color</Label>
+              <div className='grid grid-cols-2 gap-4'>
+                <div className='space-y-2'>
+                  <Label htmlFor='foreground-select'>Foreground Color</Label>
                   <Select value={selectedForeground} onValueChange={setSelectedForeground}>
-                    <SelectTrigger id="foreground-select">
-                      <SelectValue placeholder="Select foreground" />
+                    <SelectTrigger id='foreground-select'>
+                      <SelectValue placeholder='Select foreground' />
                     </SelectTrigger>
-                    <SelectContent className="max-h-[300px]">
-                      <SelectItem value="__none__">None</SelectItem>
+                    <SelectContent className='max-h-[300px]'>
+                      <SelectItem value='__none__'>None</SelectItem>
                       {availableColors.slice(0, 100).map(([name, style]) => (
                         <SelectItem key={name} value={name}>
-                          <div className="flex items-center gap-2">
-                            <ColorCircle color={style.value} className="h-4 w-4" />
+                          <div className='flex items-center gap-2'>
+                            <ColorCircle color={style.value} className='h-4 w-4' />
                             <span>{name}</span>
-                            <span className="text-muted-foreground text-xs">
-                              • {style.value}
-                            </span>
+                            <span className='text-muted-foreground text-xs'>• {style.value}</span>
                           </div>
                         </SelectItem>
                       ))}
                       {availableColors.length > 100 && (
-                        <SelectItem value="__more_fg__" disabled>
+                        <SelectItem value='__more_fg__' disabled>
                           ... and {availableColors.length - 100} more colors
                         </SelectItem>
                       )}
                     </SelectContent>
                   </Select>
                   {availableColors.length > 100 && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className='text-xs text-muted-foreground'>
                       Showing first 100 colors. Use search in Colors page to find more.
                     </p>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="background-select">Background Color</Label>
+                <div className='space-y-2'>
+                  <Label htmlFor='background-select'>Background Color</Label>
                   <Select value={selectedBackground} onValueChange={setSelectedBackground}>
-                    <SelectTrigger id="background-select">
-                      <SelectValue placeholder="Select background" />
+                    <SelectTrigger id='background-select'>
+                      <SelectValue placeholder='Select background' />
                     </SelectTrigger>
-                    <SelectContent className="max-h-[300px]">
-                      <SelectItem value="__none__">None</SelectItem>
+                    <SelectContent className='max-h-[300px]'>
+                      <SelectItem value='__none__'>None</SelectItem>
                       {availableColors.slice(0, 100).map(([name, style]) => (
                         <SelectItem key={name} value={name}>
-                          <div className="flex items-center gap-2">
-                            <ColorCircle color={style.value} className="h-4 w-4" />
+                          <div className='flex items-center gap-2'>
+                            <ColorCircle color={style.value} className='h-4 w-4' />
                             <span>{name}</span>
-                            <span className="text-muted-foreground text-xs">
-                              • {style.value}
-                            </span>
+                            <span className='text-muted-foreground text-xs'>• {style.value}</span>
                           </div>
                         </SelectItem>
                       ))}
                       {availableColors.length > 100 && (
-                        <SelectItem value="__more_bg__" disabled>
+                        <SelectItem value='__more_bg__' disabled>
                           ... and {availableColors.length - 100} more colors
                         </SelectItem>
                       )}
                     </SelectContent>
                   </Select>
                   {availableColors.length > 100 && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className='text-xs text-muted-foreground'>
                       Showing first 100 colors. Use search in Colors page to find more.
                     </p>
                   )}
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="font-style-select">Font Style</Label>
+              <div className='space-y-2'>
+                <Label htmlFor='font-style-select'>Font Style</Label>
                 <Select
                   value={selectedFontStyle}
-                  onValueChange={(value) => setSelectedFontStyle(value as FontStyle | "none")}
+                  onValueChange={value => setSelectedFontStyle(value as FontStyle | "none")}
                 >
-                  <SelectTrigger id="font-style-select">
-                    <SelectValue placeholder="Select font style" />
+                  <SelectTrigger id='font-style-select'>
+                    <SelectValue placeholder='Select font style' />
                   </SelectTrigger>
                   <SelectContent>
-                    {FONT_STYLES.map((style) => (
+                    {FONT_STYLES.map(style => (
                       <SelectItem key={style} value={style}>
                         <span className={style !== "none" ? `font-${style}` : ""}>
                           {style === "none" ? "None" : style}
@@ -211,7 +205,7 @@ const EditDialog = memo(
             </div>
           </form>
           <DialogFooter>
-            <Button variant="outline" onClick={onClose} type="button">
+            <Button variant='outline' onClick={onClose} type='button'>
               Cancel
             </Button>
             <Button
@@ -222,7 +216,7 @@ const EditDialog = memo(
                 const background = selectedBackground === "__none__" ? "" : selectedBackground
                 onSave(scopeName, foreground, background, fontStyle)
               }}
-              type="submit"
+              type='submit'
             >
               {isAddingNew ? "Add" : "Update"}
             </Button>
@@ -243,23 +237,20 @@ interface ColorCardProps {
 }
 
 const ColorCard = memo(({ scope, tokenColor, onEdit, onDelete }: ColorCardProps) => (
-  <Card className="p-3">
-    <div className="flex items-center gap-3">
-      <div className="flex gap-1">
+  <Card className='p-3'>
+    <div className='flex items-center gap-3'>
+      <div className='flex gap-1'>
         {tokenColor.foreground && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div>
-                  <ColorCircle
-                    color={tokenColor.foreground.value}
-                    className="h-8 w-8 shrink-0"
-                  />
+                  <ColorCircle color={tokenColor.foreground.value} className='h-8 w-8 shrink-0' />
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p className="font-medium">Foreground: {tokenColor.foreground.name}</p>
-                <p className="text-xs text-background/80">{tokenColor.foreground.value}</p>
+                <p className='font-medium'>Foreground: {tokenColor.foreground.name}</p>
+                <p className='text-xs text-background/80'>{tokenColor.foreground.value}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -271,37 +262,37 @@ const ColorCard = memo(({ scope, tokenColor, onEdit, onDelete }: ColorCardProps)
                 <div>
                   <ColorCircle
                     color={tokenColor.background.value}
-                    className="h-8 w-8 shrink-0 ring-2 ring-border"
+                    className='h-8 w-8 shrink-0 ring-2 ring-border'
                   />
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p className="font-medium">Background: {tokenColor.background.name}</p>
-                <p className="text-xs text-background/80">{tokenColor.background.value}</p>
+                <p className='font-medium'>Background: {tokenColor.background.name}</p>
+                <p className='text-xs text-background/80'>{tokenColor.background.value}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         )}
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm truncate">{scope}</p>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <div className='flex-1 min-w-0'>
+        <p className='font-medium text-sm truncate'>{scope}</p>
+        <div className='flex items-center gap-2 text-xs text-muted-foreground'>
           {tokenColor.foreground && (
-            <span className="truncate">
+            <span className='truncate'>
               FG: {tokenColor.foreground.name} • {tokenColor.foreground.value}
             </span>
           )}
           {tokenColor.background && (
-            <span className="truncate">
+            <span className='truncate'>
               BG: {tokenColor.background.name} • {tokenColor.background.value}
             </span>
           )}
           {tokenColor.fontStyle && (
-            <span className="truncate font-semibold">{tokenColor.fontStyle}</span>
+            <span className='truncate font-semibold'>{tokenColor.fontStyle}</span>
           )}
         </div>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className='flex flex-col gap-2'>
         <EditButton onClick={() => onEdit(scope, tokenColor)} />
         <DeleteButton onClick={() => onDelete(scope)} />
       </div>
@@ -346,7 +337,7 @@ export function TokenColorsPage() {
   const groupedTokenColors = useMemo(() => {
     const groups = new Map<string, Array<[string, TokenColor]>>()
 
-    filteredTokenColors.forEach((entry) => {
+    filteredTokenColors.forEach(entry => {
       const [scope] = entry
       const category = sortBy === "default" ? scope.split(".")[0] || "other" : "all"
       if (!groups.has(category)) {
@@ -486,7 +477,7 @@ export function TokenColorsPage() {
           <CardDescription>No theme loaded</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
+          <p className='text-sm text-muted-foreground'>
             Please load a theme from the Theme Editor page first.
           </p>
         </CardContent>
@@ -496,40 +487,44 @@ export function TokenColorsPage() {
 
   return (
     <>
-      <Card className="flex flex-col h-full">
+      <Card className='flex flex-col h-full'>
         <CardHeader>
           <CardTitle>Token Colors</CardTitle>
           <CardDescription>
-            Manage syntax highlighting token color scopes. Each scope controls colors for
-            specific code elements like comments, strings, and keywords.
+            Manage syntax highlighting token color scopes. Each scope controls colors for specific
+            code elements like comments, strings, and keywords.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4 flex-1">
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <CardContent className='flex flex-col gap-4 flex-1'>
+          <div className='flex gap-2'>
+            <div className='relative flex-1'>
+              <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
               <Input
-                placeholder="Search token scopes..."
+                placeholder='Search token scopes...'
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
+                onChange={e => setSearch(e.target.value)}
+                className='pl-9'
               />
             </div>
-            <ToggleGroup type="single" value={sortBy} onValueChange={(value) => value && setSortBy(value as "default" | "name")}>
-              <ToggleGroupItem value="default" aria-label="Group by category" variant="outline">
+            <ToggleGroup
+              type='single'
+              value={sortBy}
+              onValueChange={value => value && setSortBy(value as "default" | "name")}
+            >
+              <ToggleGroupItem value='default' aria-label='Group by category' variant='outline'>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="text-xs">Default</span>
+                    <span className='text-xs'>Default</span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Group by category</p>
                   </TooltipContent>
                 </Tooltip>
               </ToggleGroupItem>
-              <ToggleGroupItem value="name" aria-label="Sort by name" variant="outline">
+              <ToggleGroupItem value='name' aria-label='Sort by name' variant='outline'>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="text-xs">Name</span>
+                    <span className='text-xs'>Name</span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Sort by name only</p>
@@ -537,21 +532,25 @@ export function TokenColorsPage() {
                 </Tooltip>
               </ToggleGroupItem>
             </ToggleGroup>
-            <ToggleGroup type="single" value={sortOrder} onValueChange={(value) => value && setSortOrder(value as "asc" | "desc")}>
-              <ToggleGroupItem value="asc" aria-label="Ascending order" variant="outline">
+            <ToggleGroup
+              type='single'
+              value={sortOrder}
+              onValueChange={value => value && setSortOrder(value as "asc" | "desc")}
+            >
+              <ToggleGroupItem value='asc' aria-label='Ascending order' variant='outline'>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <ArrowUpAZ className="h-4 w-4" />
+                    <ArrowUpAZ className='h-4 w-4' />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Ascending</p>
                   </TooltipContent>
                 </Tooltip>
               </ToggleGroupItem>
-              <ToggleGroupItem value="desc" aria-label="Descending order" variant="outline">
+              <ToggleGroupItem value='desc' aria-label='Descending order' variant='outline'>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <ArrowDownAZ className="h-4 w-4" />
+                    <ArrowDownAZ className='h-4 w-4' />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Descending</p>
@@ -559,29 +558,29 @@ export function TokenColorsPage() {
                 </Tooltip>
               </ToggleGroupItem>
             </ToggleGroup>
-            <Button onClick={handleAdd} variant="outline" size="sm" className="h-9 w-9 p-0">
-              <Plus className="h-4 w-4" />
+            <Button onClick={handleAdd} variant='outline' size='sm' className='h-9 w-9 p-0'>
+              <Plus className='h-4 w-4' />
             </Button>
           </div>
 
-          <ScrollArea className="flex-1">
+          <ScrollArea className='flex-1'>
             {filteredTokenColors.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Code className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-sm text-muted-foreground">
+              <div className='flex flex-col items-center justify-center py-12 text-center'>
+                <Code className='h-12 w-12 text-muted-foreground mb-4' />
+                <p className='text-sm text-muted-foreground'>
                   {search ? "No token scopes match your search" : "No token colors defined"}
                 </p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className='space-y-6'>
                 {Array.from(groupedTokenColors.entries()).map(([category, entries]) => (
                   <div key={category}>
                     {sortBy === "default" && (
-                      <h3 className="text-sm font-semibold mb-3 capitalize text-muted-foreground">
+                      <h3 className='text-sm font-semibold mb-3 capitalize text-muted-foreground'>
                         {category}
                       </h3>
                     )}
-                    <div className="space-y-2">
+                    <div className='space-y-2'>
                       {entries.map(([scope, tokenColor]) => (
                         <ColorCard
                           key={scope}

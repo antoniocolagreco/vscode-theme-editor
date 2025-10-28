@@ -1,6 +1,6 @@
-"use client"
-
 import * as TabsPrimitive from "@radix-ui/react-tabs"
+import type * as React from "react"
+
 import { cn } from "@/lib/utils"
 
 function Tabs({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Root>) {
@@ -49,4 +49,4 @@ function TabsContent({ className, ...props }: React.ComponentProps<typeof TabsPr
   )
 }
 
-export { Tabs, TabsContent, TabsList, TabsTrigger }
+export { Tabs, TabsList, TabsTrigger, TabsContent }

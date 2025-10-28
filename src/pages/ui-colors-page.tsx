@@ -46,91 +46,104 @@ interface EditDialogProps {
   onSave: (scopeName: string, colorName: string) => void
 }
 
-const EditDialog = memo(({ isOpen, isAddingNew, initialScope, initialColorName, availableColors, onClose, onSave }: EditDialogProps) => {
-  const scopeInputRef = useRef<HTMLInputElement>(null)
-  const [selectedColorName, setSelectedColorName] = useState(initialColorName)
+const EditDialog = memo(
+  ({
+    isOpen,
+    isAddingNew,
+    initialScope,
+    initialColorName,
+    availableColors,
+    onClose,
+    onSave,
+  }: EditDialogProps) => {
+    const scopeInputRef = useRef<HTMLInputElement>(null)
+    const [selectedColorName, setSelectedColorName] = useState(initialColorName)
 
-  // Update input value and select when props change
-  useEffect(() => {
-    if (scopeInputRef.current) {
-      scopeInputRef.current.value = initialScope
+    // Update input value and select when props change
+    useEffect(() => {
+      if (scopeInputRef.current) {
+        scopeInputRef.current.value = initialScope
+      }
+      setSelectedColorName(initialColorName)
+    }, [initialScope, initialColorName])
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault()
+      const scopeName = scopeInputRef.current?.value || ""
+      onSave(scopeName, selectedColorName)
     }
-    setSelectedColorName(initialColorName)
-  }, [initialScope, initialColorName])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const scopeName = scopeInputRef.current?.value || ""
-    onSave(scopeName, selectedColorName)
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isAddingNew ? "Add UI Color" : "Edit UI Color"}</DialogTitle>
+            <DialogDescription>
+              {isAddingNew ? "Create a new UI color scope" : "Modify the UI color scope"}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit}>
+            <div className='space-y-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='scope-name'>Scope Name</Label>
+                <Input
+                  ref={scopeInputRef}
+                  id='scope-name'
+                  defaultValue={initialScope}
+                  placeholder='e.g., editor.background'
+                  autoFocus
+                />
+              </div>
+              <div className='space-y-2'>
+                <Label htmlFor='color-select'>Color Style</Label>
+                <Select value={selectedColorName} onValueChange={setSelectedColorName}>
+                  <SelectTrigger id='color-select'>
+                    <SelectValue placeholder='Select a color' />
+                  </SelectTrigger>
+                  <SelectContent className='max-h-[300px]'>
+                    {availableColors.slice(0, 100).map(([name, style]) => (
+                      <SelectItem key={name} value={name}>
+                        <div className='flex items-center gap-2'>
+                          <ColorCircle color={style.value} className='h-4 w-4' />
+                          <span>{name}</span>
+                          <span className='text-muted-foreground text-xs'>• {style.value}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                    {availableColors.length > 100 && (
+                      <SelectItem value='' disabled>
+                        ... and {availableColors.length - 100} more colors
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+                {availableColors.length > 100 && (
+                  <p className='text-xs text-muted-foreground'>
+                    Showing first 100 colors. Use search in Colors page to find more.
+                  </p>
+                )}
+              </div>
+            </div>
+          </form>
+          <DialogFooter>
+            <Button variant='outline' onClick={onClose} type='button'>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                const scopeName = scopeInputRef.current?.value || ""
+                onSave(scopeName, selectedColorName)
+              }}
+              type='submit'
+            >
+              {isAddingNew ? "Add" : "Update"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )
   }
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{isAddingNew ? "Add UI Color" : "Edit UI Color"}</DialogTitle>
-          <DialogDescription>
-            {isAddingNew ? "Create a new UI color scope" : "Modify the UI color scope"}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className='space-y-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='scope-name'>Scope Name</Label>
-              <Input
-                ref={scopeInputRef}
-                id='scope-name'
-                defaultValue={initialScope}
-                placeholder='e.g., editor.background'
-                autoFocus
-              />
-            </div>
-            <div className='space-y-2'>
-              <Label htmlFor='color-select'>Color Style</Label>
-              <Select value={selectedColorName} onValueChange={setSelectedColorName}>
-                <SelectTrigger id='color-select'>
-                  <SelectValue placeholder='Select a color' />
-                </SelectTrigger>
-                <SelectContent className='max-h-[300px]'>
-                  {availableColors.slice(0, 100).map(([name, style]) => (
-                    <SelectItem key={name} value={name}>
-                      <div className='flex items-center gap-2'>
-                        <ColorCircle color={style.value} className='h-4 w-4' />
-                        <span>{name}</span>
-                        <span className='text-muted-foreground text-xs'>• {style.value}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                  {availableColors.length > 100 && (
-                    <SelectItem value='' disabled>
-                      ... and {availableColors.length - 100} more colors
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-              {availableColors.length > 100 && (
-                <p className='text-xs text-muted-foreground'>
-                  Showing first 100 colors. Use search in Colors page to find more.
-                </p>
-              )}
-            </div>
-          </div>
-        </form>
-        <DialogFooter>
-          <Button variant='outline' onClick={onClose} type='button'>
-            Cancel
-          </Button>
-          <Button onClick={() => {
-            const scopeName = scopeInputRef.current?.value || ""
-            onSave(scopeName, selectedColorName)
-          }} type='submit'>
-            {isAddingNew ? "Add" : "Update"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-})
+)
 
 EditDialog.displayName = "EditDialog"
 
@@ -148,10 +161,7 @@ const ColorCard = memo(({ scope, uiColor, onEdit, onDelete }: ColorCardProps) =>
         <Tooltip>
           <TooltipTrigger asChild>
             <div>
-              <ColorCircle
-                color={uiColor.colorStyle.value}
-                className='h-8 w-8 shrink-0'
-              />
+              <ColorCircle color={uiColor.colorStyle.value} className='h-8 w-8 shrink-0' />
             </div>
           </TooltipTrigger>
           <TooltipContent>
@@ -188,21 +198,22 @@ export function UIColorsPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
 
   const uiColors = useMemo(() => Array.from(theme?.colors?.entries() || []), [theme?.colors])
-  const availableColors = useMemo(() => Array.from(theme?.colorStyles?.entries() || []), [theme?.colorStyles])
+  const availableColors = useMemo(
+    () => Array.from(theme?.colorStyles?.entries() || []),
+    [theme?.colorStyles]
+  )
 
   // Defer search to avoid blocking dialog input
   const deferredSearch = useDeferredValue(search)
 
   const filteredUIColors = useMemo(() => {
     const searchLower = deferredSearch.toLowerCase()
-    return uiColors.filter(([scope, _uiColor]) =>
-      scope.toLowerCase().includes(searchLower)
-    )
+    return uiColors.filter(([scope, _uiColor]) => scope.toLowerCase().includes(searchLower))
   }, [uiColors, deferredSearch])
 
   // Group UI colors by category (first part before the dot)
   const groupedColors = useMemo(() => {
-    const groups = new Map<string, Array<[string, typeof uiColors[0][1]]>>()
+    const groups = new Map<string, Array<[string, (typeof uiColors)[0][1]]>>()
 
     filteredUIColors.forEach(entry => {
       const [scope] = entry
@@ -230,34 +241,37 @@ export function UIColorsPage() {
     return sortedGroups
   }, [filteredUIColors, sortBy, sortOrder])
 
-  const validateSaveInput = useCallback((scopeName: string, selectedColorName: string): { valid: boolean; colorStyle?: ColorStyle } => {
-    if (!scopeName.trim()) {
-      toast.error("Scope name is required")
-      return { valid: false }
-    }
-    if (!selectedColorName) {
-      toast.error("Please select a color")
-      return { valid: false }
-    }
-    const colorStyle = theme?.colorStyles?.get(selectedColorName)
-    if (!colorStyle) {
-      toast.error("Selected color not found")
-      return { valid: false }
-    }
-    return { valid: true, colorStyle }
-  }, [theme?.colorStyles])
+  const validateSaveInput = useCallback(
+    (scopeName: string, selectedColorName: string): { valid: boolean; colorStyle?: ColorStyle } => {
+      if (!scopeName.trim()) {
+        toast.error("Scope name is required")
+        return { valid: false }
+      }
+      if (!selectedColorName) {
+        toast.error("Please select a color")
+        return { valid: false }
+      }
+      const colorStyle = theme?.colorStyles?.get(selectedColorName)
+      if (!colorStyle) {
+        toast.error("Selected color not found")
+        return { valid: false }
+      }
+      return { valid: true, colorStyle }
+    },
+    [theme?.colorStyles]
+  )
 
-  const handleScopeRename = useCallback((
-    targetScope: string,
-    oldUIColor?: UIColor
-  ): Map<string, UIColor> => {
-    const updatedColors = new Map(theme?.colors || new Map())
-    if (editingScope && editingScope !== targetScope && oldUIColor) {
-      removeColorReference(oldUIColor.colorStyle, editingScope)
-      updatedColors.delete(editingScope)
-    }
-    return updatedColors
-  }, [theme?.colors, editingScope])
+  const handleScopeRename = useCallback(
+    (targetScope: string, oldUIColor?: UIColor): Map<string, UIColor> => {
+      const updatedColors = new Map(theme?.colors || new Map())
+      if (editingScope && editingScope !== targetScope && oldUIColor) {
+        removeColorReference(oldUIColor.colorStyle, editingScope)
+        updatedColors.delete(editingScope)
+      }
+      return updatedColors
+    },
+    [theme?.colors, editingScope]
+  )
 
   const handleAdd = useCallback(() => {
     setIsAddingNew(true)
@@ -267,47 +281,57 @@ export function UIColorsPage() {
     setIsDialogOpen(true)
   }, [availableColors])
 
-  const handleEdit = useCallback((scope: string, currentColorStyle: ColorStyle) => {
-    setIsAddingNew(false)
-    setEditingScope(scope)
-    setDialogInitialScope(scope)
-    const colorName = availableColors.find(([_name, style]) => style === currentColorStyle)?.[0] || ""
-    setDialogInitialColor(colorName)
-    setIsDialogOpen(true)
-  }, [availableColors])
+  const handleEdit = useCallback(
+    (scope: string, currentColorStyle: ColorStyle) => {
+      setIsAddingNew(false)
+      setEditingScope(scope)
+      setDialogInitialScope(scope)
+      const colorName =
+        availableColors.find(([_name, style]) => style === currentColorStyle)?.[0] || ""
+      setDialogInitialColor(colorName)
+      setIsDialogOpen(true)
+    },
+    [availableColors]
+  )
 
-  const handleDelete = useCallback((scope: string, colorStyle: ColorStyle) => {
-    if (!theme) {
-      return
-    }
-    removeColorReference(colorStyle, scope)
-    const updatedColors = new Map(theme.colors)
-    updatedColors.delete(scope)
-    setTheme({ ...theme, colors: updatedColors })
-    toast.success(`Deleted ${scope}`)
-  }, [theme, setTheme])
+  const handleDelete = useCallback(
+    (scope: string, colorStyle: ColorStyle) => {
+      if (!theme) {
+        return
+      }
+      removeColorReference(colorStyle, scope)
+      const updatedColors = new Map(theme.colors)
+      updatedColors.delete(scope)
+      setTheme({ ...theme, colors: updatedColors })
+      toast.success(`Deleted ${scope}`)
+    },
+    [theme, setTheme]
+  )
 
-  const handleDialogSave = useCallback((scopeName: string, selectedColorName: string) => {
-    if (!theme) {
-      return
-    }
-    const validation = validateSaveInput(scopeName, selectedColorName)
-    if (!validation.valid || !validation.colorStyle) {
-      return
-    }
+  const handleDialogSave = useCallback(
+    (scopeName: string, selectedColorName: string) => {
+      if (!theme) {
+        return
+      }
+      const validation = validateSaveInput(scopeName, selectedColorName)
+      if (!validation.valid || !validation.colorStyle) {
+        return
+      }
 
-    const targetScope = scopeName.trim()
-    const oldUIColor = editingScope ? theme.colors.get(editingScope) : undefined
-    const updatedColors = handleScopeRename(targetScope, oldUIColor)
-    const oldColorStyle = editingScope === targetScope ? oldUIColor?.colorStyle : undefined
+      const targetScope = scopeName.trim()
+      const oldUIColor = editingScope ? theme.colors.get(editingScope) : undefined
+      const updatedColors = handleScopeRename(targetScope, oldUIColor)
+      const oldColorStyle = editingScope === targetScope ? oldUIColor?.colorStyle : undefined
 
-    updateColorReference(oldColorStyle, validation.colorStyle, targetScope)
-    updatedColors.set(targetScope, { colorStyle: validation.colorStyle })
+      updateColorReference(oldColorStyle, validation.colorStyle, targetScope)
+      updatedColors.set(targetScope, { colorStyle: validation.colorStyle })
 
-    setTheme({ ...theme, colors: updatedColors })
-    setIsDialogOpen(false)
-    toast.success(isAddingNew ? `Added ${targetScope}` : `Updated ${targetScope}`)
-  }, [theme, setTheme, editingScope, isAddingNew, validateSaveInput, handleScopeRename])
+      setTheme({ ...theme, colors: updatedColors })
+      setIsDialogOpen(false)
+      toast.success(isAddingNew ? `Added ${targetScope}` : `Updated ${targetScope}`)
+    },
+    [theme, setTheme, editingScope, isAddingNew, validateSaveInput, handleScopeRename]
+  )
 
   const handleDialogClose = useCallback(() => {
     setIsDialogOpen(false)
@@ -350,21 +374,25 @@ export function UIColorsPage() {
                 className='pl-9'
               />
             </div>
-            <ToggleGroup type="single" value={sortBy} onValueChange={(value) => value && setSortBy(value as "default" | "name")}>
-              <ToggleGroupItem value="default" aria-label="Group by category" variant="outline">
+            <ToggleGroup
+              type='single'
+              value={sortBy}
+              onValueChange={value => value && setSortBy(value as "default" | "name")}
+            >
+              <ToggleGroupItem value='default' aria-label='Group by category' variant='outline'>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="text-xs">Default</span>
+                    <span className='text-xs'>Default</span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Group by category</p>
                   </TooltipContent>
                 </Tooltip>
               </ToggleGroupItem>
-              <ToggleGroupItem value="name" aria-label="Sort by name" variant="outline">
+              <ToggleGroupItem value='name' aria-label='Sort by name' variant='outline'>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="text-xs">Name</span>
+                    <span className='text-xs'>Name</span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Sort by name only</p>
@@ -372,21 +400,25 @@ export function UIColorsPage() {
                 </Tooltip>
               </ToggleGroupItem>
             </ToggleGroup>
-            <ToggleGroup type="single" value={sortOrder} onValueChange={(value) => value && setSortOrder(value as "asc" | "desc")}>
-              <ToggleGroupItem value="asc" aria-label="Ascending order" variant="outline">
+            <ToggleGroup
+              type='single'
+              value={sortOrder}
+              onValueChange={value => value && setSortOrder(value as "asc" | "desc")}
+            >
+              <ToggleGroupItem value='asc' aria-label='Ascending order' variant='outline'>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <ArrowUpAZ className="h-4 w-4" />
+                    <ArrowUpAZ className='h-4 w-4' />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Ascending</p>
                   </TooltipContent>
                 </Tooltip>
               </ToggleGroupItem>
-              <ToggleGroupItem value="desc" aria-label="Descending order" variant="outline">
+              <ToggleGroupItem value='desc' aria-label='Descending order' variant='outline'>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <ArrowDownAZ className="h-4 w-4" />
+                    <ArrowDownAZ className='h-4 w-4' />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Descending</p>
@@ -394,12 +426,7 @@ export function UIColorsPage() {
                 </Tooltip>
               </ToggleGroupItem>
             </ToggleGroup>
-            <Button
-              onClick={handleAdd}
-              variant='outline'
-              size='sm'
-              className='h-9 w-9 p-0'
-            >
+            <Button onClick={handleAdd} variant='outline' size='sm' className='h-9 w-9 p-0'>
               <Plus className='h-4 w-4' />
             </Button>
           </div>

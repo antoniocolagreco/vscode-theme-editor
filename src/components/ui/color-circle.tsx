@@ -49,6 +49,7 @@ export function ColorCircle({
         sizes[size],
         className
       )}
-      style={{ backgroundColor: displayColor }} />
+      style={{ backgroundColor: displayColor }}
+    />
   )
 }

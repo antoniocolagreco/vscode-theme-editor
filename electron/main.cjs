@@ -26,10 +26,11 @@ function createWindow() {
   })
 
   // Remove menu bar completely (File, Edit, View, etc.)
-  mainWindow.removeMenu()
+  // mainWindow.removeMenu()
 
-  if (process.env.NODE_ENV === "development") {
-    mainWindow.loadURL("http://localhost:5173")
+  // vite-plugin-electron injects VITE_DEV_SERVER_URL in dev mode
+  if (process.env.VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
     mainWindow.webContents.openDevTools()
   } else {
     // In production, use app.getAppPath() to get the correct base path
@@ -102,7 +103,7 @@ ipcMain.handle("openFileDialog", async () => {
 ipcMain.handle("getWindowCapabilities", () => {
   return {
     canMinimize: !isTilingWM() && (mainWindow?.minimizable ?? false),
-    canMaximize: mainWindow?.maximizable ?? false,
+    canMaximize: !isTilingWM() && (mainWindow?.maximizable ?? false),
   }
 })
 
