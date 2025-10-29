@@ -26,7 +26,7 @@ function createWindow() {
   })
 
   // Remove menu bar completely (File, Edit, View, etc.)
-  // mainWindow.removeMenu()
+  mainWindow.removeMenu()
 
   // vite-plugin-electron injects VITE_DEV_SERVER_URL in dev mode
   if (process.env.VITE_DEV_SERVER_URL) {

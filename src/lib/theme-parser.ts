@@ -53,7 +53,7 @@ function parseUIColors(
       if (typeof value === "string") {
         const colorStyle = findOrCreateColorStyle(colorStyles, value)
         if (colorStyle) {
-          colorStyle.scopes.add(key)
+          colorStyle.scopes.add(`${key} (UI)`)
           colors.set(key, { colorStyle })
         }
       }
@@ -74,7 +74,7 @@ function createTokenColorObject(
   if (settings.foreground) {
     const foreground = findOrCreateColorStyle(colorStyles, settings.foreground)
     if (foreground) {
-      foreground.scopes.add(`${scope} (fg)`)
+      foreground.scopes.add(`${scope} (Token FG)`)
       tokenColorObj.foreground = foreground
     }
   }
@@ -83,7 +83,7 @@ function createTokenColorObject(
   if (settings.background) {
     const background = findOrCreateColorStyle(colorStyles, settings.background)
     if (background) {
-      background.scopes.add(`${scope} (bg)`)
+      background.scopes.add(`${scope} (Token BG)`)
       tokenColorObj.background = background
     }
   }
@@ -144,7 +144,7 @@ function parseSemanticTokenColors(
     if (typeof value.foreground === "string") {
       const foreground = findOrCreateColorStyle(colorStyles, value.foreground)
       if (foreground) {
-        foreground.scopes.add(`${key} (semantic)`)
+        foreground.scopes.add(`${key} (Semantic)`)
         semanticToken.foreground = foreground
       }
     }

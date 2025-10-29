@@ -1,104 +1,87 @@
 # VS Code Theme Editor
 
-Desktop app (Electron + React) for editing VS Code theme JSON files with zero duplication.
+A desktop application for creating, editing, and managing VS Code themes with deduplication and intelligent color palette tracking.
 
-## The Problem
+---
 
-VS Code themes have hundreds of color scopes, but many reuse the same color values. Without deduplication:
+## 🎯 What It Solves
 
-- Edit "red" in 50 places instead of 1
-- Colors become inconsistent
-- Hard to track where each color is used
+VS Code themes contain hundreds of color scopes that often reuse the same colors. Without intelligent deduplication:
 
-## The Solution
+- ❌ Edit "red" in 50 places separately
+- ❌ Inconsistent color values across the theme
+- ❌ Difficult to track where colors are used
+- ❌ Manual updates required everywhere
 
-**ColorStyle Palette**: Extract unique colors once, reference everywhere.
+**This app solves it** by treating colors as first-class objects with automatic scope tracking and O(1) lookups.
 
-- Load theme → extract unique colors into a palette
-- Edit a color value → all scopes using it update automatically (same object reference)
-- Save theme → serialize back to VS Code format
+---
 
-## Features
+## ✨ Key Features
 
-- ✅ **UI Colors Page**: Edit VS Code UI scope colors
-- ✅ **Token Colors Page**: Edit syntax highlighting colors (foreground, background, fontStyle)
-- ✅ **Semantic Tokens Page**: Edit semantic token colors
-- ✅ **Color Palette**: View and edit unique colors directly
-- ✅ **Search & Sort**: Find scopes by name, sort by category or name
-- ✅ **Load/Save**: Open any theme, make edits, save back to file
-- ✅ **Live Preview**: Instantly see all color updates across the theme
+### 1. **Color Palette Deduplication**
 
-## Tech Stack
+- Extract unique colors from VS Code themes automatically
+- One color = one definition, referenced by all scopes
+- Edit once, update everywhere instantly
 
-- **Electron 38** - Desktop app with native file access
-- **React 19** - UI with performance optimizations (memoization, deferred values)
-- **TypeScript 5.9** - Strict type safety
-- **Vite** - Fast dev server and build tool
-- **Radix UI + Shadcn/UI** - Component library
-- **TailwindCSS** - Styling
-- **Vitest** - Unit tests (80%+ coverage)
+### 2. **Scope Tracking**
 
-## Quick Start
+- See exactly which scopes use each color
+- Filter and organize by scope type (UI, token, semantic)
+- Track color usage across the entire theme
+
+### 3. **Multiple Color Types**
+
+- **UI Colors**: Editor background, foreground, panels, etc.
+- **Token Colors**: Syntax highlighting for code elements
+- **Semantic Token Colors**: Modern language-aware token styling
+
+### 4. **Native Desktop Experience**
+
+- Built with Electron for macOS, Windows, and Linux
+- Seamless file I/O with Electron IPC
+- Zero browser limitations
+
+### 5. **Full VS Code Compatibility**
+
+- Import existing VS Code themes (.json)
+- Export valid VS Code theme files
+- Preserves all color formats (hex, rgb, named colors)
+
+---
+
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
+# Clone repository
+git clone https://github.com/antoniocolagreco/vscode-theme-editor
+cd vscode-theme-editor
+
 # Install dependencies
 npm install
 
-# Dev mode (Vite + Electron with HMR)
+# Development mode (Vite + Electron HMR)
 npm run dev
 
-# Build distributable
+# Build for production
 npm run build
-npm run electron:build
 
-# Run tests
-npm test
-npm run test:coverage
+# Package distributable
+npm run package
 ```
 
-## How It Works
+### First Theme
 
-1. **Load Theme**: Read VS Code theme JSON file
-2. **Parse**: Extract unique colors → ColorStyle palette
-3. **Edit**: Modify UI/Token/Semantic colors (all reference same ColorStyle objects)
-4. **Save**: Serialize back to VS Code JSON format
+1. Launch the app
+2. Click **Load Theme** → select a `.json` theme file
+3. Navigate tabs:
+   - **UI Colors**: Editor and window colors
+   - **Token Colors**: Syntax highlighting
+   - **Semantic Tokens**: Advanced token styling
+   - **Colors Palette**: View and edit all unique colors
 
-All scope updates are tracked automatically. Edit one ColorStyle value → instantly updates all 50+ scopes using it.
-
-## Architecture
-
-```text
-src/
-├── pages/          # UI Colors, Token Colors, Semantic Tokens pages
-├── context/        # ThemeContext for global state
-├── lib/            # Parsers, file I/O, scope managers
-├── components/     # Reusable UI components
-└── types/          # TypeScript interfaces
-
-electron/
-├── main.cjs        # Electron IPC handlers
-└── preload.cjs     # Preload script
-```
-
-## Key Files
-
-| File | Purpose |
-|------|---------|
-| `src/lib/theme-parser.ts` | Parse VS Code JSON → internal format |
-| `src/lib/file-service.ts` | Save internal format → VS Code JSON |
-| `src/lib/color-scope-manager.ts` | Track color usage (scope management) |
-| `src/context/theme-context.tsx` | Global theme state provider |
-| `.github/copilot-instructions.md` | AI agent development guide |
-
-## Testing
-
-```bash
-npm test               # Watch mode
-npm run test:coverage  # Coverage report (min 80%)
-```
-
-All business logic (parsers, file I/O, scope management) has 100% coverage.
-
-## License
-
-MIT
+4. Make edits (changes appear everywhere automatically)
+5. Click **Save** to write the theme back to disk

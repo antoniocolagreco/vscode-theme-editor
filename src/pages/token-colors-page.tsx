@@ -265,14 +265,9 @@ const ColorCard = memo(({ scope, tokenColor, onEdit, onDelete }: ColorCardProps)
                       <p className='text-xs text-muted-foreground'>Not used in any scope</p>
                     ) : (
                       <ul className='text-xs space-y-0.5'>
-                        {fgScopes.slice(0, 50).map((s: string) => (
+                        {fgScopes.map((s: string) => (
                           <li key={s} className='truncate'>• {s}</li>
                         ))}
-                        {fgScopes.length > 50 && (
-                          <li className='text-muted-foreground italic'>
-                            ... and {fgScopes.length - 50} more
-                          </li>
-                        )}
                       </ul>
                     )}
                   </div>
@@ -301,14 +296,9 @@ const ColorCard = memo(({ scope, tokenColor, onEdit, onDelete }: ColorCardProps)
                       <p className='text-xs text-muted-foreground'>Not used in any scope</p>
                     ) : (
                       <ul className='text-xs space-y-0.5'>
-                        {bgScopes.slice(0, 50).map((s: string) => (
+                        {bgScopes.map((s: string) => (
                           <li key={s} className='truncate'>• {s}</li>
                         ))}
-                        {bgScopes.length > 50 && (
-                          <li className='text-muted-foreground italic'>
-                            ... and {bgScopes.length - 50} more
-                          </li>
-                        )}
                       </ul>
                     )}
                   </div>

@@ -173,7 +173,7 @@ function AppContent() {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton>
-                <span className='text-xs text-muted-foreground'>v1.0.0 Antonio Colagreo</span>
+                <span className='text-xs text-muted-foreground'>v1.0.0 Antonio Colagreco</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

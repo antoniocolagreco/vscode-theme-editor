@@ -370,16 +370,9 @@ export function ColorsPage() {
                                   </p>
                                 ) : (
                                   <ul className='text-xs space-y-0.5'>
-                                    {scopes.slice(0, 50).map((scope: string) => (
-                                      <li key={scope} className='truncate'>
-                                        • {scope}
-                                      </li>
+                                    {scopes.map((s: string) => (
+                                      <li key={s} className='truncate'>• {s}</li>
                                     ))}
-                                    {scopes.length > 50 && (
-                                      <li className='text-muted-foreground italic'>
-                                        ... and {scopes.length - 50} more
-                                      </li>
-                                    )}
                                   </ul>
                                 )}
                               </div>

@@ -180,14 +180,9 @@ const ColorCard = memo(({ scope, uiColor, onEdit, onDelete }: ColorCardProps) =>
                   <p className='text-xs text-muted-foreground'>Not used in any scope</p>
                 ) : (
                   <ul className='text-xs space-y-0.5'>
-                    {scopes.slice(0, 50).map((s: string) => (
+                    {scopes.map((s: string) => (
                       <li key={s} className='truncate'>• {s}</li>
                     ))}
-                    {scopes.length > 50 && (
-                      <li className='text-muted-foreground italic'>
-                        ... and {scopes.length - 50} more
-                      </li>
-                    )}
                   </ul>
                 )}
               </div>

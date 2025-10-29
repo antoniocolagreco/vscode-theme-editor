@@ -30,6 +30,7 @@ var require_main = /* @__PURE__ */ __commonJSMin((() => {
 				nodeIntegration: false
 			}
 		});
+		mainWindow.removeMenu();
 		if (process.env.VITE_DEV_SERVER_URL) {
 			mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
 			mainWindow.webContents.openDevTools();

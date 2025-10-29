@@ -144,7 +144,7 @@ export const ColorPicker = ({
           min='0'
           max='100'
           value={Math.round(alpha * 100)}
-          onChange={e => handleAlphaChange(Number.parseInt(e.target.value) / 100)}
+          onChange={e => handleAlphaChange(Number.parseInt(e.target.value, 10) / 100)}
           className='flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer'
         />
         <span className='text-sm text-muted-foreground min-w-12 text-right'>
