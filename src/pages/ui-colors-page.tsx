@@ -154,35 +154,60 @@ interface ColorCardProps {
   onDelete: (scope: string, colorStyle: ColorStyle) => void
 }
 
-const ColorCard = memo(({ scope, uiColor, onEdit, onDelete }: ColorCardProps) => (
-  <Card className='p-3'>
-    <div className='flex items-center gap-3'>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div>
-              <ColorCircle color={uiColor.colorStyle.value} className='h-8 w-8 shrink-0' />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className='font-medium'>{uiColor.colorStyle.name}</p>
-            <p className='text-xs text-background/80'>{uiColor.colorStyle.value}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <div className='flex-1 min-w-0'>
-        <p className='font-medium text-sm truncate'>{scope}</p>
-        <p className='text-xs text-muted-foreground truncate'>
-          {uiColor.colorStyle.name} • {uiColor.colorStyle.value}
-        </p>
+const ColorCard = memo(({ scope, uiColor, onEdit, onDelete }: ColorCardProps) => {
+  const scopes = Array.from(uiColor.colorStyle.scopes || [])
+
+  return (
+    <Card className='p-3'>
+      <div className='flex items-center gap-3'>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <ColorCircle
+                  color={uiColor.colorStyle.value}
+                  className='h-8 w-8 shrink-0 cursor-pointer'
+                  onClick={() => onEdit(scope, uiColor.colorStyle)}
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className='max-w-md max-h-96 overflow-y-auto'>
+              <div className='space-y-1'>
+                <p className='font-semibold text-sm mb-2'>
+                  Used in {scopes.length} scope{scopes.length !== 1 ? 's' : ''}:
+                </p>
+                {scopes.length === 0 ? (
+                  <p className='text-xs text-muted-foreground'>Not used in any scope</p>
+                ) : (
+                  <ul className='text-xs space-y-0.5'>
+                    {scopes.slice(0, 50).map((s: string) => (
+                      <li key={s} className='truncate'>• {s}</li>
+                    ))}
+                    {scopes.length > 50 && (
+                      <li className='text-muted-foreground italic'>
+                        ... and {scopes.length - 50} more
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <div className='flex-1 min-w-0'>
+          <p className='font-medium text-sm truncate'>{scope}</p>
+          <p className='text-xs text-muted-foreground truncate'>
+            {uiColor.colorStyle.name} • {uiColor.colorStyle.value}
+          </p>
+        </div>
+        <div className='flex flex-col gap-2'>
+          <EditButton onClick={() => onEdit(scope, uiColor.colorStyle)} />
+          <DeleteButton onClick={() => onDelete(scope, uiColor.colorStyle)} />
+        </div>
       </div>
-      <div className='flex flex-col gap-2'>
-        <EditButton onClick={() => onEdit(scope, uiColor.colorStyle)} />
-        <DeleteButton onClick={() => onDelete(scope, uiColor.colorStyle)} />
-      </div>
-    </div>
-  </Card>
-))
+    </Card>
+  )
+})
 
 ColorCard.displayName = "ColorCard"
 

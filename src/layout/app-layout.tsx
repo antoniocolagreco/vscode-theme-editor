@@ -172,8 +172,8 @@ function AppContent() {
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton size='sm'>
-                <span className='text-xs text-muted-foreground'>v1.0.0</span>
+              <SidebarMenuButton>
+                <span className='text-xs text-muted-foreground'>v1.0.0 Antonio Colagreo</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

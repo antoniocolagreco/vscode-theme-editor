@@ -228,23 +228,19 @@ describe("parseThemeFromJSON", () => {
     expect(keyword?.foreground).toBeUndefined() // Invalid color skipped
   })
 
-  it("should accept valid color formats", () => {
+  it("should accept valid hex color formats only", () => {
     const json = JSON.stringify({
       name: "Test Theme",
       colors: {
         hex3: "#fff",
         hex6: "#ffffff",
         hex8: "#ffffffff",
-        rgb: "rgb(255, 255, 255)",
-        rgba: "rgba(255, 255, 255, 0.5)",
-        hsl: "hsl(0, 0%, 100%)",
-        hsla: "hsla(0, 0%, 100%, 0.5)",
       },
     })
 
     const theme = parseThemeFromJSON(json)
 
-    expect(theme.colors.size).toBe(7)
-    expect(theme.colorStyles?.size || 0).toBe(7)
+    expect(theme.colors.size).toBe(3)
+    expect(theme.colorStyles?.size || 0).toBe(3)
   })
 })

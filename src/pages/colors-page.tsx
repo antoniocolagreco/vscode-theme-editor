@@ -32,7 +32,7 @@ import {
 import { useTheme } from "@/context"
 import { getScopesForColor } from "@/lib/color-scope-manager"
 import { getColorValidationMessage, isValidColor } from "@/lib/color-validator"
-import type { ColorStyle } from "@/types"
+import type { ColorStyle, SemanticTokenColor, TokenColor, UIColor } from "@/types"
 
 type SortBy = "default" | "name" | "value"
 type SortOrder = "asc" | "desc"
@@ -156,33 +156,121 @@ export function ColorsPage() {
     toast.success(`Color "${name}" deleted`)
   }
 
+  const updateUIColorReferences = (
+    colors: Map<string, UIColor>,
+    oldStyle: ColorStyle,
+    newStyle: ColorStyle
+  ) => {
+    const updated = new Map(colors)
+    for (const [scope, uiColor] of updated.entries()) {
+      if (uiColor.colorStyle === oldStyle) {
+        updated.set(scope, { colorStyle: newStyle })
+      }
+    }
+    return updated
+  }
+
+  const updateTokenColorReferences = (
+    tokenColors: Map<string, TokenColor>,
+    oldStyle: ColorStyle,
+    newStyle: ColorStyle
+  ) => {
+    const updated = new Map(tokenColors)
+    for (const [scope, tokenColor] of updated.entries()) {
+      const fgMatch = tokenColor.foreground === oldStyle
+      const bgMatch = tokenColor.background === oldStyle
+
+      if (fgMatch || bgMatch) {
+        updated.set(scope, {
+          ...tokenColor,
+          foreground: fgMatch ? newStyle : tokenColor.foreground,
+          background: bgMatch ? newStyle : tokenColor.background,
+        })
+      }
+    }
+    return updated
+  }
+
+  const updateSemanticColorReferences = (
+    semanticTokenColors: Map<string, SemanticTokenColor>,
+    oldStyle: ColorStyle,
+    newStyle: ColorStyle
+  ) => {
+    const updated = new Map(semanticTokenColors)
+    for (const [scope, semanticToken] of updated.entries()) {
+      if (semanticToken.foreground === oldStyle) {
+        updated.set(scope, {
+          ...semanticToken,
+          foreground: newStyle,
+        })
+      }
+    }
+    return updated
+  }
+
+  const updateColorReferencesInTheme = (oldColorStyle: ColorStyle, newColorStyle: ColorStyle) => {
+    return {
+      updatedColors: updateUIColorReferences(theme.colors, oldColorStyle, newColorStyle),
+      updatedTokenColors: updateTokenColorReferences(theme.tokenColors, oldColorStyle, newColorStyle),
+      updatedSemanticTokenColors: updateSemanticColorReferences(
+        theme.semanticTokenColors || new Map(),
+        oldColorStyle,
+        newColorStyle
+      )
+    }
+  }
+
   const handleSave = () => {
     if (!colorName.trim()) {
       toast.error("Color name is required")
       return
     }
 
-    // Validate color value format
     if (!isValidColor(colorValue)) {
       toast.error(getColorValidationMessage())
       return
     }
 
     const newColorStyles = new Map(theme.colorStyles || new Map())
+    let existingScopes = new Set<string>()
+    let oldColorStyle: ColorStyle | undefined
 
-    // If editing, remove old entry
+    // Find and remove old color if editing
     if (editingColor) {
       const oldName = Array.from(newColorStyles.entries()).find(
         ([_k, v]) => v === editingColor
       )?.[0]
       if (oldName) {
+        existingScopes = new Set(editingColor.scopes || new Set())
+        oldColorStyle = editingColor
         newColorStyles.delete(oldName)
       }
     }
 
-    // Add or update
-    newColorStyles.set(colorName, { name: colorName, value: colorValue })
-    setTheme({ ...theme, colorStyles: newColorStyles })
+    // Create new ColorStyle
+    const newColorStyle: ColorStyle = {
+      name: colorName,
+      value: colorValue,
+      scopes: existingScopes
+    }
+    newColorStyles.set(colorName, newColorStyle)
+
+    // Update all theme references if editing existing color
+    if (oldColorStyle) {
+      const { updatedColors, updatedTokenColors, updatedSemanticTokenColors } =
+        updateColorReferencesInTheme(oldColorStyle, newColorStyle)
+
+      setTheme({
+        ...theme,
+        colorStyles: newColorStyles,
+        colors: updatedColors,
+        tokenColors: updatedTokenColors,
+        semanticTokenColors: updatedSemanticTokenColors
+      })
+    } else {
+      setTheme({ ...theme, colorStyles: newColorStyles })
+    }
+
     setIsDialogOpen(false)
     toast.success(editingColor ? "Color updated" : "Color added")
   }
@@ -268,7 +356,7 @@ export function ColorsPage() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div>
-                                <ColorCircle color={style.value} className='h-10 w-10 shrink-0' />
+                                <ColorCircle color={style.value} className='h-10 w-10 shrink-0' onClick={() => handleEdit(name, style)} />
                               </div>
                             </TooltipTrigger>
                             <TooltipContent className='max-w-md max-h-96 overflow-y-auto'>
@@ -338,27 +426,8 @@ export function ColorsPage() {
               <Label>Color</Label>
               <ColorPicker
                 value={colorValue}
-                onChange={color => {
-                  try {
-                    if (Array.isArray(color)) {
-                      const [r, g, b, a] = color
-                      if (
-                        typeof r === "number" &&
-                        typeof g === "number" &&
-                        typeof b === "number" &&
-                        typeof a === "number"
-                      ) {
-                        const colorValue =
-                          a < 1
-                            ? `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`
-                            : `#${((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1)}`
-                        setColorValue(colorValue)
-                      }
-                    }
-                  } catch (error) {
-                    console.error("Error setting color:", error)
-                    toast.error("Invalid color format")
-                  }
+                onChange={(color: string) => {
+                  setColorValue(color)
                 }}
               />
             </div>

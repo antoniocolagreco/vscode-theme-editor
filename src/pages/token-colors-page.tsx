@@ -236,70 +236,115 @@ interface ColorCardProps {
   onDelete: (scope: string) => void
 }
 
-const ColorCard = memo(({ scope, tokenColor, onEdit, onDelete }: ColorCardProps) => (
-  <Card className='p-3'>
-    <div className='flex items-center gap-3'>
-      <div className='flex gap-1'>
-        {tokenColor.foreground && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <ColorCircle color={tokenColor.foreground.value} className='h-8 w-8 shrink-0' />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className='font-medium'>Foreground: {tokenColor.foreground.name}</p>
-                <p className='text-xs text-background/80'>{tokenColor.foreground.value}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-        {tokenColor.background && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <ColorCircle
-                    color={tokenColor.background.value}
-                    className='h-8 w-8 shrink-0 ring-2 ring-border'
-                  />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className='font-medium'>Background: {tokenColor.background.name}</p>
-                <p className='text-xs text-background/80'>{tokenColor.background.value}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-      </div>
-      <div className='flex-1 min-w-0'>
-        <p className='font-medium text-sm truncate'>{scope}</p>
-        <div className='flex items-center gap-2 text-xs text-muted-foreground'>
+const ColorCard = memo(({ scope, tokenColor, onEdit, onDelete }: ColorCardProps) => {
+  const fgScopes = Array.from(tokenColor.foreground?.scopes || [])
+  const bgScopes = Array.from(tokenColor.background?.scopes || [])
+
+  return (
+    <Card className='p-3'>
+      <div className='flex items-center gap-3'>
+        <div className='flex gap-1'>
           {tokenColor.foreground && (
-            <span className='truncate'>
-              FG: {tokenColor.foreground.name} • {tokenColor.foreground.value}
-            </span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <ColorCircle
+                      color={tokenColor.foreground.value}
+                      className='h-8 w-8 shrink-0 cursor-pointer'
+                      onClick={() => onEdit(scope, tokenColor)}
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className='max-w-md max-h-96 overflow-y-auto'>
+                  <div className='space-y-1'>
+                    <p className='font-semibold text-sm mb-2'>
+                      Foreground • Used in {fgScopes.length} scope{fgScopes.length !== 1 ? 's' : ''}:
+                    </p>
+                    {fgScopes.length === 0 ? (
+                      <p className='text-xs text-muted-foreground'>Not used in any scope</p>
+                    ) : (
+                      <ul className='text-xs space-y-0.5'>
+                        {fgScopes.slice(0, 50).map((s: string) => (
+                          <li key={s} className='truncate'>• {s}</li>
+                        ))}
+                        {fgScopes.length > 50 && (
+                          <li className='text-muted-foreground italic'>
+                            ... and {fgScopes.length - 50} more
+                          </li>
+                        )}
+                      </ul>
+                    )}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
           {tokenColor.background && (
-            <span className='truncate'>
-              BG: {tokenColor.background.name} • {tokenColor.background.value}
-            </span>
-          )}
-          {tokenColor.fontStyle && (
-            <span className='truncate font-semibold'>{tokenColor.fontStyle}</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <ColorCircle
+                      color={tokenColor.background.value}
+                      className='h-8 w-8 shrink-0 ring-2 ring-border cursor-pointer'
+                      onClick={() => onEdit(scope, tokenColor)}
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className='max-w-md max-h-96 overflow-y-auto'>
+                  <div className='space-y-1'>
+                    <p className='font-semibold text-sm mb-2'>
+                      Background • Used in {bgScopes.length} scope{bgScopes.length !== 1 ? 's' : ''}:
+                    </p>
+                    {bgScopes.length === 0 ? (
+                      <p className='text-xs text-muted-foreground'>Not used in any scope</p>
+                    ) : (
+                      <ul className='text-xs space-y-0.5'>
+                        {bgScopes.slice(0, 50).map((s: string) => (
+                          <li key={s} className='truncate'>• {s}</li>
+                        ))}
+                        {bgScopes.length > 50 && (
+                          <li className='text-muted-foreground italic'>
+                            ... and {bgScopes.length - 50} more
+                          </li>
+                        )}
+                      </ul>
+                    )}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
+        <div className='flex-1 min-w-0'>
+          <p className='font-medium text-sm truncate'>{scope}</p>
+          <div className='flex items-center gap-2 text-xs text-muted-foreground'>
+            {tokenColor.foreground && (
+              <span className='truncate'>
+                FG: {tokenColor.foreground.name} • {tokenColor.foreground.value}
+              </span>
+            )}
+            {tokenColor.background && (
+              <span className='truncate'>
+                BG: {tokenColor.background.name} • {tokenColor.background.value}
+              </span>
+            )}
+            {tokenColor.fontStyle && (
+              <span className='truncate font-semibold'>{tokenColor.fontStyle}</span>
+            )}
+          </div>
+        </div>
+        <div className='flex flex-col gap-2'>
+          <EditButton onClick={() => onEdit(scope, tokenColor)} />
+          <DeleteButton onClick={() => onDelete(scope)} />
+        </div>
       </div>
-      <div className='flex flex-col gap-2'>
-        <EditButton onClick={() => onEdit(scope, tokenColor)} />
-        <DeleteButton onClick={() => onDelete(scope)} />
-      </div>
-    </div>
-  </Card>
-))
+    </Card>
+  )
+})
 
+ColorCard.displayName = "ColorCard"
 ColorCard.displayName = "ColorCard"
 
 export function TokenColorsPage() {

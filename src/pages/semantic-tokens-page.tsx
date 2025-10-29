@@ -183,56 +183,79 @@ interface ColorCardProps {
   onDelete: (scope: string, semanticToken: SemanticTokenColor) => void
 }
 
-const ColorCard = memo(({ scope, semanticToken, onEdit, onDelete }: ColorCardProps) => (
-  <Card className='p-3'>
-    <div className='flex items-center gap-3'>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className='flex gap-1'>
+const ColorCard = memo(({ scope, semanticToken, onEdit, onDelete }: ColorCardProps) => {
+  const fgScopes = Array.from(semanticToken.foreground?.scopes || [])
+
+  return (
+    <Card className='p-3'>
+      <div className='flex items-center gap-3'>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className='flex gap-1'>
+                {semanticToken.foreground && (
+                  <ColorCircle
+                    color={semanticToken.foreground.value}
+                    className='h-8 w-8 shrink-0 cursor-pointer'
+                    onClick={() => onEdit(scope, semanticToken)}
+                  />
+                )}
+                {!semanticToken.foreground && (
+                  <div className='h-8 w-8 shrink-0 rounded-full border-2 border-dashed border-muted-foreground/30' />
+                )}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className='max-w-md max-h-96 overflow-y-auto'>
               {semanticToken.foreground && (
-                <ColorCircle color={semanticToken.foreground.value} className='h-8 w-8 shrink-0' />
+                <div className='space-y-1'>
+                  <p className='font-semibold text-sm mb-2'>
+                    Used in {fgScopes.length} scope{fgScopes.length !== 1 ? 's' : ''}:
+                  </p>
+                  {fgScopes.length === 0 ? (
+                    <p className='text-xs text-muted-foreground'>Not used in any scope</p>
+                  ) : (
+                    <ul className='text-xs space-y-0.5'>
+                      {fgScopes.slice(0, 50).map((s: string) => (
+                        <li key={s} className='truncate'>• {s}</li>
+                      ))}
+                      {fgScopes.length > 50 && (
+                        <li className='text-muted-foreground italic'>
+                          ... and {fgScopes.length - 50} more
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                </div>
               )}
               {!semanticToken.foreground && (
-                <div className='h-8 w-8 shrink-0 rounded-full border-2 border-dashed border-muted-foreground/30' />
+                <p className='text-xs text-muted-foreground'>No foreground</p>
               )}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            {semanticToken.foreground && (
-              <>
-                <p className='font-medium'>{semanticToken.foreground.name}</p>
-                <p className='text-xs text-background/80'>{semanticToken.foreground.value}</p>
-              </>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <div className='flex-1 min-w-0'>
+          <div className='flex items-center gap-2'>
+            <p className='font-medium text-sm truncate'>{scope}</p>
+            {semanticToken.fontStyle && (
+              <Badge variant='secondary' className='text-xs shrink-0'>
+                {semanticToken.fontStyle}
+              </Badge>
             )}
-            {!semanticToken.foreground && (
-              <p className='text-xs text-background/80'>No foreground</p>
-            )}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <div className='flex-1 min-w-0'>
-        <div className='flex items-center gap-2'>
-          <p className='font-medium text-sm truncate'>{scope}</p>
-          {semanticToken.fontStyle && (
-            <Badge variant='secondary' className='text-xs shrink-0'>
-              {semanticToken.fontStyle}
-            </Badge>
-          )}
+          </div>
+          <p className='text-xs text-muted-foreground truncate'>
+            {semanticToken.foreground
+              ? `${semanticToken.foreground.name} • ${semanticToken.foreground.value}`
+              : "No colors defined"}
+          </p>
         </div>
-        <p className='text-xs text-muted-foreground truncate'>
-          {semanticToken.foreground
-            ? `${semanticToken.foreground.name} • ${semanticToken.foreground.value}`
-            : "No colors defined"}
-        </p>
+        <div className='flex flex-col gap-2'>
+          <EditButton onClick={() => onEdit(scope, semanticToken)} />
+          <DeleteButton onClick={() => onDelete(scope, semanticToken)} />
+        </div>
       </div>
-      <div className='flex flex-col gap-2'>
-        <EditButton onClick={() => onEdit(scope, semanticToken)} />
-        <DeleteButton onClick={() => onDelete(scope, semanticToken)} />
-      </div>
-    </div>
-  </Card>
-))
+    </Card>
+  )
+})
 
 ColorCard.displayName = "ColorCard"
 
@@ -360,8 +383,8 @@ export function SemanticTokensPage() {
 
       const foregroundName = currentSemanticToken.foreground
         ? availableColors.find(
-            ([_name, style]) => style === currentSemanticToken.foreground
-          )?.[0] || "__none__"
+          ([_name, style]) => style === currentSemanticToken.foreground
+        )?.[0] || "__none__"
         : "__none__"
       setDialogInitialForeground(foregroundName)
 
